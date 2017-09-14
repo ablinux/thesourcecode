@@ -43,22 +43,7 @@ int main(void)
 	init_led();// LED init
 
 	init_sensor();// Sensor ON
-
-#if 0	
-	uint8_t test = 0x00;
-	while(1)
-	{
-		if( is_sensor_hit())
-		{
-			Byte1_PutVal(test);
-//			test ++;
-//			if(test == 0xff)
-//				test = 0x00;
-//			WAIT1_Waitms(50);
-		}
-		Byte1_PutVal(~test);
-	}
-#endif	
+	
 	/* By this time motor is running, so batter to calculate a its RPM now */
 	rpm_val = motor_RPM();
 
@@ -66,10 +51,6 @@ int main(void)
 
 	while(1)
 	{
-		/* Start printing if sensor hits the reference point */
-		
-			
-		
 		/* By this time Motor rotation might have changed so again calculate the delay value 
   		to make it robust */
 		Byte1_PutVal(0xff);
@@ -91,14 +72,14 @@ void print_char(char letter, uint32_t delay)
 	 * of the char
 	 * it looks some thing like this 
 	 * --------
-	 *           |-3-|
-	 *       -   #	 #	
-	 *       |   #	 #
-	 *       |   #   #
-	 *       7   # # #
-	 *       |   #   #
-	 *       |   #   #
-	 *       -   #   #
+	 *           |--4--|
+	 *       -   #	   #	
+	 *       |   #	   #
+	 *       |   #     #
+	 *       7   # # # #
+	 *       |   #     #
+	 *       |   #     #
+	 *       -   #     #
 	 *           -------- This is a letter H that is going to print on the propeller
 	 * Each element in the array can hold 8bit of data hence the 8 or 7 LED, and we have to
 	 * print this as per the resolution of the char here is choose 3 hence the char array is of 3

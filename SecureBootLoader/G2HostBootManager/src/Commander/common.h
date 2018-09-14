@@ -32,11 +32,30 @@
 #define   GET_LAST_BOOT_STATUS  '\r'
 #define   DOWNLOAD_IMAGE        'N'
 
+
+#define     ACK_DWN_IM_IN               'D'
+#define     ACK_DWN_NOT_SUFFICIENT      'X'
+#define     ACK_DWN_FILE_EMPTY          'Y'
+#define     ACK_DWN_SIZE_OK             'S'
+#define     ACK_DWN_CHUNK_SIZE_OK       'O'
+#define     ACK_DWN_COMPLETE            'C'
+#define     ACK_DWN_OK                  'A'
+#define     ACK_DWN_RESEND              'R'
+#define     ACK_DWN_TIMEOUT             'T'
+#define     ACK_DWN_SYS_FAIL            'E'
+#define     ACK_DWN_FAILD               'F'
+#define     ACK_DWN_NO_SPACE            'Q'
+#define     ACK_OK                      'k'
+
+#define     MAX_DWN_FRAG_SIZE                (256U)
+
 #define HOST_SUCESS 0;
 
 void welcome();
 void show_menu();
 static char const * GetLineTrailerByPercentage(uint8_t percentage);
 uint32_t command_handler(uint8_t command);
+static void send_command(uint8_t cmd);
+static uint8_t notify_user(uint8_t status);
 
 #endif /* COMMANDER_COMMON_H_ */

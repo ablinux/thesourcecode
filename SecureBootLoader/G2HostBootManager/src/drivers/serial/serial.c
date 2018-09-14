@@ -113,14 +113,13 @@ uint32_t serial_write(uint8_t *data_holder, uint32_t bytes)
 	Status = WriteFile(hComm,            // Handle to the Serial port
 			data_holder,     	 // Data to be written to the port
 			bytes,  	 //No of bytes to write
-			p_bytes_written, //Bytes written
+			&p_bytes_written, //Bytes written
 			NULL);
 	if(Status == false)
 	{
 		puts("Write failed\n");
 		return 1;
 	}
-
 	return 0;
 }
 

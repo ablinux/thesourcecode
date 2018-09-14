@@ -47,7 +47,9 @@ uint32_t command_handler(uint8_t command)
 	{
 		uint8_t file_location_str[300];
 		uint32_t file_size;
-		uint32_t err;
+		uint32_t read_size;
+		uint8_t data_holder;
+		uint32_t temp_buffer[MAX_DWN_FRAG_SIZE];
 		fflush(stdin);
 		/* We are in downloader */
 		puts("Enter the location of bin file : ");gets(file_location_str);
@@ -58,8 +60,75 @@ uint32_t command_handler(uint8_t command)
 		printf("File Size : %d\n",file_size);
 
 		/* Send Downloader a command to enable */
-		err = serial_write(DOWNLOAD_IMAGE, 1); if(err){puts("Error serial write \n"); exit(0);}
+		send_command(DOWNLOADER_EN);
+		/* wait for ACK */
+		serial_read(&data_holder, 1);
+		notify_user(data_holder);
+
+		/** Send the file size */
+		serial_write(&file_size, sizeof(file_size));
+		serial_read(&data_holder, 1);
+		notify_user(data_holder);
+
+		/** Read the file and send chunk size*/
+		read_size = fread(temp_buffer,1,256,fp);
+		serial_write(&read_size, sizeof(read_size));
+		serial_read(&data_holder, 1);
+		notify_user(data_holder);
 
 	}
 	}
+}
+static void send_command(uint8_t cmd)
+{
+	uint8_t cmd_to_send = cmd;
+	serial_write(&cmd_to_send,1);
+
+}
+static uint8_t notify_user(uint8_t status)
+{
+	switch(status)
+	{
+	case ACK_DWN_IM_IN :
+		break;
+	case ACK_DWN_NOT_SUFFICIENT :
+		puts("Code cant fit into the flash \n");
+		exit(0);
+		break;
+	case ACK_DWN_FILE_EMPTY     :
+		puts("File is empty\n");
+		exit(0);
+		break;
+	case ACK_DWN_SIZE_OK        :
+		break;
+	case ACK_DWN_CHUNK_SIZE_OK  :
+		break;
+	case ACK_DWN_COMPLETE       :
+		break;
+	case ACK_DWN_OK             :
+		break;
+	case ACK_DWN_RESEND         :
+		puts("Error in data transfer... retrying\n");
+		return ACK_DWN_RESEND;
+		break;
+	case ACK_DWN_TIMEOUT        :
+		puts("Time out\n");
+		exit(0);
+		break;
+	case ACK_DWN_SYS_FAIL       :
+		puts("System failed\n");
+		exit(0);
+		break;
+	case ACK_DWN_FAILD          :
+		puts("Download failed\n");
+		exit(0);
+		break;
+	case ACK_DWN_NO_SPACE       :
+		puts("No more space\n");
+		exit(0);
+		break;
+	case ACK_OK                 :
+		break;
+	}
+	return 0;
 }

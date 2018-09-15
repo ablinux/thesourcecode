@@ -172,14 +172,10 @@ void bt_update_boot_data_sector(bootloader_cfg_t *p_boot_cfg)
 
 void bt_get_boot_data_sector(bootloader_cfg_t *p_boot_cfg)
 {
-    uint8_t cmd;
-    uint32_t err = 0;
     p_boot_cfg->flash_apis->read((uint32_t *)BOOTLOADER_STATUS_OFFSET,
                                  (uint8_t *)&p_boot_cfg->bootloader_sector,sizeof(p_boot_cfg->bootloader_sector));
 
     p_boot_cfg->comms_apis->write((uint8_t*)&p_boot_cfg->bootloader_sector,sizeof(bootloader_sector_t));
-
-
 }
 
 void bt_download_image(bootloader_cfg_t *p_boot_cfg, uint32_t time_out)
@@ -313,7 +309,7 @@ void bt_download_image(bootloader_cfg_t *p_boot_cfg, uint32_t time_out)
             if(image_chunk.is_encrypted)
             {
                 /* de-crypted the data */
-                p_boot_cfg->aes_dec_api->dec_data(image_chunk.data_lenth,image_chunk.actual_data,temp_data);
+                p_boot_cfg->aes_dec_api->dec_data(256,image_chunk.actual_data,temp_data);
                 memcpy(image_chunk.actual_data,temp_data,256);
             }
             err = bt_validate_download(p_boot_cfg, &image_chunk);

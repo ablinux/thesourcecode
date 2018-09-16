@@ -21,6 +21,7 @@
 #define   EXIT_BOOT             'E'
 #define   GET_LAST_BOOT_STATUS  '\r'
 #define   DOWNLOAD_IMAGE        'N'
+#define   START_APPLICATION     'S'
 
 /* ACKNOWLEDGEMENTS */
 #define     ACK_DWN_IM_IN               'D'

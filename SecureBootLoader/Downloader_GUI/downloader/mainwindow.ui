@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>310</height>
+    <width>391</width>
+    <height>313</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>221</y>
+      <y>210</y>
       <width>261</width>
-      <height>20</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="value">
@@ -84,7 +84,7 @@
      <rect>
       <x>10</x>
       <y>170</y>
-      <width>231</width>
+      <width>251</width>
       <height>31</height>
      </rect>
     </property>
@@ -131,7 +131,7 @@
    <widget class="QLabel" name="label_wr_ofst">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>160</x>
       <y>140</y>
       <width>111</width>
       <height>20</height>
@@ -170,7 +170,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>382</width>
+     <width>391</width>
      <height>21</height>
     </rect>
    </property>

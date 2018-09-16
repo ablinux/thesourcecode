@@ -5,7 +5,6 @@
 #include <QComboBox>
 #include <stdlib.h>
 #include <stddef.h>
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
@@ -66,7 +65,33 @@ void MainWindow::on_downloadProgressBar_valueChanged(int value)
 
 void MainWindow::on_SelectComPort_clicked()
 {
-
+    /* Get the Serial port number from the combo box */
+    QString ComPortName =  ui->comboBox->currentText();
+    /* open the com port */
+    DWORD last_err;
+    char comport [15]="\\\\.\\";
+    strcat(comport,ComPortName.toStdString().c_str());
+    this->hCom = CreateFileA(comport,    	//port name
+                       GENERIC_READ | GENERIC_WRITE, 	//Read/Write
+                       0,                            	// No Sharing
+                       NULL,                         	// No Security
+                       OPEN_EXISTING,					// Open existing port only
+                       0,            					// Non Overlapped I/O
+                       NULL);
+    if(INVALID_HANDLE_VALUE == this->hCom)
+    {
+        last_err = GetLastError();
+        if(last_err == ERROR_FILE_NOT_FOUND )
+        {
+            QMessageBox::information(this,"Error","Error in Opening "+ComPortName);
+            CloseHandle(this->hCom);
+        }
+    }
+    else
+    {
+        QMessageBox::information(this,"SUCCESS","Device is selected");
+    }
+    /* Get the status of the device */
 }
 
 void MainWindow ::get_ComPorts()
@@ -76,8 +101,7 @@ void MainWindow ::get_ComPorts()
     char port_num[5];
     uint8_t run = 0;
     DWORD last_err;
-    LPCWSTR port  ;
-    ui->comboBox->addItem("add_to_box");
+    ui->comboBox->addItem("Serial Port");
     while(run < 100)
     {
         memset(ComPortName,0x00,15);
@@ -86,14 +110,14 @@ void MainWindow ::get_ComPorts()
         strcat(ComPortName,port_num);
         /* Check only 100 com ports */
 
-        hcom = CreateFile((LPCWSTR)"\\\\.\\COM13",    	//port name
+        hcom = CreateFileA(ComPortName,    	//port name
                             GENERIC_READ | GENERIC_WRITE, 	//Read/Write
                             0,                            	// No Sharing
                             NULL,                         	// No Security
                             OPEN_EXISTING,					// Open existing port only
                             0,            					// Non Overlapped I/O
                             NULL);
-        if(hcom == INVALID_HANDLE_VALUE)
+        if(INVALID_HANDLE_VALUE == hcom)
         {
             last_err = GetLastError();
             if(last_err == ERROR_FILE_NOT_FOUND )
@@ -104,7 +128,7 @@ void MainWindow ::get_ComPorts()
         else
         {
             /* add the value to the list */
-            QString add_to_box = ComPortName;
+            QString add_to_box = &ComPortName[4];
             ui->comboBox->addItem(add_to_box);
         }
         CloseHandle(hcom);

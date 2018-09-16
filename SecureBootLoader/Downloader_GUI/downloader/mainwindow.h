@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 #include <stdint.h>
 #include <QMainWindow>
+#include <windows.h>
 
 namespace Ui
 {
@@ -18,6 +19,7 @@ public:
 
     QString FileName;
     uint32_t FileSize;
+    HANDLE hCom;
 
 private slots:
     void on_searchFile_triggered(QAction *arg1);

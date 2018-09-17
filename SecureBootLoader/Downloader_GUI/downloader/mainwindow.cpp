@@ -72,7 +72,7 @@ void MainWindow::on_SelectComPort_clicked()
     QString ComPortName =  ui->comboBox->currentText();
     /* open the com port */
     DWORD last_err;
-    char cmd[3] = {'\r','\r','\r'};
+    char cmd[3] = {'I','I','I'};
     bool Status;
     uint8_t run=0;
     uint32_t bytes_written;
@@ -97,30 +97,39 @@ void MainWindow::on_SelectComPort_clicked()
     }
     else
     {
-        QMessageBox::information(this,"SUCCESS","Device is selected");
         this->system_connection = true; /* mark the system as connected */
     }
     this->set_Comms();
     /* Send the device null command to ack that host is connected assuming application is running
         Send 2nd and 3rd time to to sure that device in bootloader mode */
-    while(run < 4)
-    {
-        Status = WriteFile(this->hCom, cmd, 1,(LPDWORD)&bytes_written, NULL);
-        run ++;
-        Sleep(40);
-    }
+    this->Sendpreamble();
     /* Now get the status of the boot device */
     cmd[0] = 'G';
     WriteFile(this->hCom, &cmd[0], 1,(LPDWORD)&bytes_written, NULL);
 
-    this->read_SerialData((uint8_t*)&this->bootDataSector,sizeof(bootloader_sector_t));
+    this->read_SerialData(&this->bootDataSector,sizeof(bootloader_sector_t));
 
     if(this->bootDataSector.bt_last_boot_status == BT_APP_NOT_OK)
     {
+        ui->SelectComPort->setStyleSheet("background-color: yellow");
         bootStatus = "System Failed to boot";
     }
+    else if(this->bootDataSector.bt_last_boot_status == BT_APP_OK)
+    {
+        ui->SelectComPort->setStyleSheet("background-color: green");
+        bootStatus = "System OK";
+    }
+    else
+    {
+        ui->SelectComPort->setStyleSheet("background-color: red");
+        bootStatus = "No Bootloader";
+    }
     ui->label_wr_lbs->setText(bootStatus);
-    ui->label_wr_ofst->setText("0x80000");
+    char tempBuff[100];
+    sprintf(tempBuff,"0x%X",this->bootDataSector.current_app_offset);
+    ui->label_wr_ofst->setText(tempBuff);
+    sprintf(tempBuff,"%d",this->bootDataSector.total_image);
+    ui->label_wr_apcount_2->setText(tempBuff);
 }
 
 void MainWindow ::get_ComPorts()
@@ -184,7 +193,7 @@ void MainWindow ::set_Comms()
 
     if (Status == FALSE)
     {
-        printf("\n   Error! in Setting DCB Structure");
+       QMessageBox::information(this,"Error","Error in comPort setting ");
     }
 
     /*------------------------------------ Setting Timeouts --------------------------------------------------*/
@@ -196,9 +205,14 @@ void MainWindow ::set_Comms()
     timeouts.ReadTotalTimeoutMultiplier  = 10;
     timeouts.WriteTotalTimeoutConstant   = 50;
     timeouts.WriteTotalTimeoutMultiplier = 10;
+    Status = SetCommTimeouts(this->hCom, &timeouts);
+    if (Status == FALSE)
+    {
+       QMessageBox::information(this,"Error","Error in comPort timeout setting ");
+    }
 }
 
-void MainWindow ::read_SerialData(uint8_t* data,uint32_t bytes)
+uint32_t MainWindow ::read_SerialData(void *data,uint32_t bytes)
 {
     DWORD dwEventMask;                     			// Event mask to trigger
     uint32_t bytes_read;
@@ -206,7 +220,7 @@ void MainWindow ::read_SerialData(uint8_t* data,uint32_t bytes)
 
     if (Status == FALSE)
     {
-        printf("\n\n    Error! in Setting CommMask");
+        return 1;
     }
 
     /* Read back the response */
@@ -216,31 +230,34 @@ void MainWindow ::read_SerialData(uint8_t* data,uint32_t bytes)
 
     if (Status == FALSE)
     {
-        printf("\n    Error! in Setting WaitCommEvent()");
+        return 1;
     }
-    else //If  WaitCommEvent()==True Read the RXed data using ReadFile();
+    else
     {
         Status = ReadFile(this->hCom, data, bytes, (LPDWORD)&bytes_read, NULL);
     }
-    bytes_read = 0;
+    return 0;
 }
 
 void MainWindow::on_downloadImage_clicked()
 {
+    fflush(stdin);
+    fflush(stdout);
+    this->Sendpreamble();
     char cmd = DOWNLOAD_IMAGE;
-    uint8_t read_back[10];
+    uint8_t read_back[10] = {0,0,0,0,0,0,0};
     uint32_t read_size,chunk_size,size_for_trail = 0,remaining_data = 0,bytes_written;
     uint8_t progressPct = 0,ack_status,send_again = 0;
 
     bool Status = WriteFile(this->hCom, &cmd, 1,(LPDWORD)&bytes_written, NULL);
-    this->read_SerialData(read_back,5);
-    ack_status = notify_user(read_back[0],this);
+    this->read_SerialData(read_back,1);
+    ack_status = notify_user(read_back[0]);
     if(ack_status == 0) /* procced if everything is ok */
     {
         /* Send the file size to the bootloader */
         Status = WriteFile(this->hCom,  &this->FileSize,4, (LPDWORD)&bytes_written, NULL);
-        this->read_SerialData(read_back,5);
-        ack_status = notify_user(read_back[0],this);
+        this->read_SerialData(read_back,1);
+        ack_status = notify_user(read_back[0]);
     }
     if(ack_status == 0)/* procced if everything is ok */
     {
@@ -252,25 +269,28 @@ void MainWindow::on_downloadImage_clicked()
                 read_size = fread(this->binPayload.actual_data,1,256,this->fp);
             }
 
+            chunk_size = PACKET_SIZE;
+
             size_for_trail = size_for_trail + read_size;
-            binPayload.data_lenth = read_size;
-            binPayload.check_sum = crcFast(binPayload.actual_data,read_size);
+            this->binPayload.data_lenth = read_size;
+            this->binPayload.is_encrypted = 0;
+            this->binPayload.check_sum = crcFast(this->binPayload.actual_data,read_size);
             if(read_size == 0)
             {
                 chunk_size = 0;
             }
             /* send the chunk */
             WriteFile(this->hCom, &chunk_size, 4,(LPDWORD)&bytes_written, NULL);
-            this->read_SerialData(read_back,5);
-            ack_status = notify_user(read_back[0],this);
+            this->read_SerialData(read_back,1);
+            ack_status = notify_user(read_back[0]);
 
             if(ack_status == ACK_DWN_COMPLETE) { break;} /* Download is complete */
             else if(ack_status == 0)/* keep doing */
             {
                 /* Send payload to bootloader */
-                WriteFile(this->hCom,binPayload.actual_data, 256,(LPDWORD)&bytes_written, NULL);
-                this->read_SerialData(read_back,5);
-                ack_status = notify_user(read_back[0],this);
+                WriteFile(this->hCom, &this->binPayload, PACKET_SIZE,(LPDWORD)&bytes_written, NULL);
+                this->read_SerialData(read_back,1);
+                ack_status = notify_user(read_back[0]);
             }
             if(ack_status == ACK_DWN_RESEND)
             {
@@ -288,65 +308,102 @@ void MainWindow::on_downloadImage_clicked()
                 ui->downloadProgressBar->setValue(progressPct);
             }
         }while(read_size != 0);
+        rewind(this->fp);
     }
 
 }
 
-static uint8_t notify_user(uint8_t status,MainWindow *inthisclass)
+uint8_t MainWindow :: notify_user(uint8_t status)
 {
     uint8_t ack_status;
     switch(status)
     {
     case ACK_DWN_IM_IN :
+        ui->downloadStatus->setText("Status : Downloading...");
         ack_status = 0;
         break;
     case ACK_DWN_NOT_SUFFICIENT :
-        QMessageBox::information(inthisclass,"Error"," Size is not sufficent");
+        QMessageBox::information(this,"Error"," Size is not sufficent");
         ack_status = 1;
         break;
     case ACK_DWN_FILE_EMPTY     :
-        QMessageBox::information(inthisclass,"Error"," File is Empty");
+        QMessageBox::information(this,"Error"," File is Empty");
         ack_status = 1;
         break;
     case ACK_DWN_SIZE_OK        :
+        ui->downloadStatus->setText("Status : Size confirmed.");
         ack_status = 0;
         break;
     case ACK_DWN_CHUNK_SIZE_OK  :
+        ui->downloadStatus->setText("Status : Packet size confirmed.");
         ack_status = 0;
         break;
     case ACK_DWN_COMPLETE       :
-        QMessageBox::information(inthisclass,"Complete"," Download is complete"
+        ui->downloadStatus->setText("Status : Download success.");
+        QMessageBox::information(this,"Complete"," Download is complete"
                                                         "Starting app");
         return ACK_DWN_COMPLETE;
         ack_status = 0;
         break;
     case ACK_DWN_OK             :
+        ui->downloadStatus->setText("Status : Downloading...");
         ack_status = 0;
         break;
     case ACK_DWN_RESEND         :
+        ui->downloadStatus->setText("Status : CRC failed Resending data...");
         return ACK_DWN_RESEND;
         break;
     case ACK_DWN_TIMEOUT        :
-        QMessageBox::information(inthisclass,"Error","Download Timeout");
+        QMessageBox::information(this,"Error","Download Timeout");
         ack_status = 1;
         break;
     case ACK_DWN_SYS_FAIL       :
-        QMessageBox::information(inthisclass,"Error","System failure reported reboot the"
+        QMessageBox::information(this,"Error","System failure reported reboot the"
                                                      "system");
         ack_status = 1;
         break;
     case ACK_DWN_FAILD          :
-        QMessageBox::information(inthisclass,"Error"," Download failed\n");
+        QMessageBox::information(this,"Error"," Download failed\n");
         ack_status = 1;
         break;
     case ACK_DWN_NO_SPACE       :
-        puts("No more space\n");QMessageBox::information(inthisclass,"Error"," No more space");
+        ui->downloadStatus->setText("Status : No more space");
+        QMessageBox::information(this,"Error"," No more space");
         ack_status = 1;
         break;
     case ACK_OK                 :
+         ack_status = 0;
+         ui->downloadStatus->setText("Status : ACK");
         break;
     default:
         return 'X'; // Something else
     }
     return ack_status;
+}
+
+void MainWindow::on_SelectComPort_Disconnect_clicked()
+{
+    if(this->system_connection == true)
+    {
+        CloseHandle(this->hCom);
+        ui->SelectComPort->setStyleSheet("background-color: light gray");
+        ui->label_wr_lbs->setText("None");
+        ui->label_wr_ofst->setText("None");
+        ui->label_wr_apcount_2->setText("None");
+        ui->downloadProgressBar->reset();
+    }
+}
+
+void MainWindow:: Sendpreamble()
+{
+    uint32_t run = 0;
+    uint8_t cmd = 'I';// Preamble data //
+    uint32_t bytes_written;
+    bool Status;
+    while(run < 4)
+    {
+        Status = WriteFile(this->hCom, &cmd, 1,(LPDWORD)&bytes_written, NULL);
+        run ++;
+        Sleep(40);
+    }
 }

@@ -55,8 +55,8 @@ typedef struct image_data_st
 typedef struct image_info_st
 {
     uint32_t app_start_address;
-    uint8_t  app_size;
-    uint32_t check_sum;
+    uint32_t  app_size;
+    crc check_sum;
 }image_info_t;
 
 typedef struct bootloader_data_sector_st
@@ -69,6 +69,8 @@ typedef struct bootloader_data_sector_st
     image_info_t image_data_2;
     crc check_sum;
 }bootloader_sector_t;
+
+#define PACKET_SIZE   (sizeof(image_data_t))
 
 namespace Ui
 {
@@ -105,14 +107,18 @@ private slots:
 
     void set_Comms();
 
-    void read_SerialData(uint8_t* data,uint32_t bytes);
+    uint32_t read_SerialData(void* data,uint32_t bytes);
 
     void on_downloadImage_clicked();
+
+    void on_SelectComPort_Disconnect_clicked();
+
+    void Sendpreamble();
+
+    uint8_t notify_user(uint8_t status);
 
 private:
     Ui::MainWindow *ui;
 };
-
-static uint8_t notify_user(uint8_t status,MainWindow *inthisclass);
 
 #endif // MAINWINDOW_H

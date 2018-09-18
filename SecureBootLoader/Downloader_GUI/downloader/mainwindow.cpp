@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->downloadProgressBar->setValue(0);
     this->get_ComPorts();
+    this->FileSize = 0;
 }
 
 MainWindow::~MainWindow()
@@ -29,6 +30,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_selecFile_clicked()
 {
     /*trigger the file search */
+    this->FileSize = 0;
     this->FileName = QFileDialog::getOpenFileName(this,"Open .bin file",
                                                   "C:\\Users\\abhishek.pandey.TELXSI\\e2_studio\\Manual_test\\",
                                                   "*.bin");
@@ -37,6 +39,7 @@ void MainWindow::on_selecFile_clicked()
     if(this->fp == NULL)
     {
         QMessageBox::information(this,"Error","Error in opening the file");
+        this->FileSize = 0;
     }
     else
     {
@@ -183,7 +186,7 @@ void MainWindow ::set_Comms()
 
     if (Status == FALSE)
     {
-       QMessageBox::information(this,"Error","Error in comPort setting ");
+        QMessageBox::information(this,"Error","Error in comPort setting ");
     }
 
     /*------------------------------------ Setting Timeouts --------------------------------------------------*/
@@ -198,7 +201,7 @@ void MainWindow ::set_Comms()
     Status = SetCommTimeouts(this->hCom, &timeouts);
     if (Status == FALSE)
     {
-       QMessageBox::information(this,"Error","Error in comPort timeout setting ");
+        QMessageBox::information(this,"Error","Error in comPort timeout setting ");
     }
 }
 
@@ -231,74 +234,89 @@ uint32_t MainWindow ::read_SerialData(void *data,uint32_t bytes)
 
 void MainWindow::on_downloadImage_clicked()
 {
-    fflush(stdin);
-    fflush(stdout);
-    this->Sendpreamble();
-    char cmd = DOWNLOAD_IMAGE;
-    uint8_t read_back[10] = {0,0,0,0,0,0,0};
-    uint32_t read_size,chunk_size,size_for_trail = 0,remaining_data = 0,bytes_written;
-    uint8_t progressPct = 0,ack_status,send_again = 0;
-
-    bool Status = WriteFile(this->hCom, &cmd, 1,(LPDWORD)&bytes_written, NULL);
-    this->read_SerialData(read_back,1);
-    ack_status = notify_user(read_back[0]);
-    if(ack_status == 0) /* procced if everything is ok */
+    if(this->system_connection == true)
     {
-        /* Send the file size to the bootloader */
-        Status = WriteFile(this->hCom,  &this->FileSize,4, (LPDWORD)&bytes_written, NULL);
-        this->read_SerialData(read_back,1);
-        ack_status = notify_user(read_back[0]);
-    }
-    if(ack_status == 0)/* procced if everything is ok */
-    {
-        do
+        if(this->FileSize != 0)
         {
-            /* Read the 1st chunk and send cunk size and image payload */
-            if(send_again == 0)
-            {
-                read_size = fread(this->binPayload.actual_data,1,256,this->fp);
-            }
+            fflush(stdin);
+            fflush(stdout);
 
-            chunk_size = PACKET_SIZE;
+            this->Sendpreamble();
+            char cmd = DOWNLOAD_IMAGE;
+            uint8_t read_back[10] = {0,0,0,0,0,0,0};
+            uint32_t read_size,chunk_size,size_for_trail = 0,remaining_data = 0,bytes_written;
+            uint8_t progressPct = 0,ack_status,send_again = 0;
 
-            size_for_trail = size_for_trail + read_size;
-            this->binPayload.data_lenth = read_size;
-            this->binPayload.is_encrypted = 0;
-            this->binPayload.check_sum = crcFast(this->binPayload.actual_data,read_size);
-            if(read_size == 0)
-            {
-                chunk_size = 0;
-            }
-            /* send the chunk */
-            WriteFile(this->hCom, &chunk_size, 4,(LPDWORD)&bytes_written, NULL);
+            bool Status = WriteFile(this->hCom, &cmd, 1,(LPDWORD)&bytes_written, NULL);
             this->read_SerialData(read_back,1);
             ack_status = notify_user(read_back[0]);
-
-            if(ack_status == ACK_DWN_COMPLETE) { break;} /* Download is complete */
-            else if(ack_status == 0)/* keep doing */
+            if(ack_status == 0) /* procced if everything is ok */
             {
-                /* Send payload to bootloader */
-                WriteFile(this->hCom, &this->binPayload, PACKET_SIZE,(LPDWORD)&bytes_written, NULL);
+                /* Send the file size to the bootloader */
+                Status = WriteFile(this->hCom,  &this->FileSize,4, (LPDWORD)&bytes_written, NULL);
                 this->read_SerialData(read_back,1);
                 ack_status = notify_user(read_back[0]);
             }
-            if(ack_status == ACK_DWN_RESEND)
+            if(ack_status == 0)/* procced if everything is ok */
             {
-                send_again = 1;
+                do
+                {
+                    /* Read the 1st chunk and send cunk size and image payload */
+                    if(send_again == 0)
+                    {
+                        read_size = fread(this->binPayload.actual_data,1,256,this->fp);
+                    }
+
+                    chunk_size = PACKET_SIZE;
+
+                    size_for_trail = size_for_trail + read_size;
+                    this->binPayload.data_lenth = read_size;
+                    this->binPayload.is_encrypted = 0;
+                    this->binPayload.check_sum = crcFast(this->binPayload.actual_data,read_size);
+                    if(read_size == 0)
+                    {
+                        chunk_size = 0;
+                    }
+                    /* send the chunk */
+                    WriteFile(this->hCom, &chunk_size, 4,(LPDWORD)&bytes_written, NULL);
+                    this->read_SerialData(read_back,1);
+                    ack_status = notify_user(read_back[0]);
+
+                    if(ack_status == ACK_DWN_COMPLETE) { break;} /* Download is complete */
+                    else if(ack_status == 0)/* keep doing */
+                    {
+                        /* Send payload to bootloader */
+                        WriteFile(this->hCom, &this->binPayload, PACKET_SIZE,(LPDWORD)&bytes_written, NULL);
+                        this->read_SerialData(read_back,1);
+                        ack_status = notify_user(read_back[0]);
+                    }
+                    if(ack_status == ACK_DWN_RESEND)
+                    {
+                        send_again = 1;
+                    }
+                    else if(ack_status == 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        remaining_data = this->FileSize - size_for_trail;
+                        progressPct = (uint8_t)(((this->FileSize - remaining_data) * 100ul) / this->FileSize);
+                        /* Inc the progress bar */
+                        ui->downloadProgressBar->setValue(progressPct);
+                    }
+                }while(read_size != 0);
+                rewind(this->fp);
             }
-            else if(ack_status == 1)
-            {
-                break;
-            }
-            else
-            {
-                remaining_data = this->FileSize - size_for_trail;
-                progressPct = (uint8_t)(((this->FileSize - remaining_data) * 100ul) / this->FileSize);
-                /* Inc the progress bar */
-                ui->downloadProgressBar->setValue(progressPct);
-            }
-        }while(read_size != 0);
-        rewind(this->fp);
+        }
+        else
+        {
+            QMessageBox::information(this,"Error","Select the file first");
+        }
+    }
+    else
+    {
+        QMessageBox::information(this,"Error","No devide is selected");
     }
 
 }
@@ -331,7 +349,7 @@ uint8_t MainWindow :: notify_user(uint8_t status)
     case ACK_DWN_COMPLETE       :
         ui->downloadStatus->setText("Status : Download success.");
         QMessageBox::information(this,"Complete"," Download is complete"
-                                                        " Starting app");
+                                                 " Starting app");
         return ACK_DWN_COMPLETE;
         ack_status = 0;
         break;
@@ -349,7 +367,7 @@ uint8_t MainWindow :: notify_user(uint8_t status)
         break;
     case ACK_DWN_SYS_FAIL       :
         QMessageBox::information(this,"Error","System failure reported reboot the"
-                                                     "system");
+                                              "system");
         ack_status = 1;
         break;
     case ACK_DWN_FAILD          :
@@ -362,8 +380,8 @@ uint8_t MainWindow :: notify_user(uint8_t status)
         ack_status = 1;
         break;
     case ACK_OK                 :
-         ack_status = 0;
-         ui->downloadStatus->setText("Status : ACK");
+        ack_status = 0;
+        ui->downloadStatus->setText("Status : ACK");
         break;
     default:
         return 'X'; // Something else
@@ -382,7 +400,10 @@ void MainWindow::on_SelectComPort_Disconnect_clicked()
         ui->label_wr_apcount_2->setText("None");
         ui->downloadProgressBar->reset();
         ui->fileSizeWR->setText("unknown");
-        ui->downloadStatus->setText("Status :");
+        ui->downloadStatus->setText("Status : idle");
+        ui->fileLocation->clear();
+        this->FileSize = 0;
+        fclose(this->fp);
     }
 }
 

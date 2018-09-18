@@ -93,9 +93,6 @@ public:
     bool system_connection;
 
 private slots:
-    void on_searchFile_triggered(QAction *arg1);
-
-    void on_searchFile_clicked();
 
     void on_selecFile_clicked();
 

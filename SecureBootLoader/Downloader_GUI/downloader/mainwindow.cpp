@@ -26,23 +26,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_searchFile_triggered(QAction *arg1)
-{
-
-}
-
-void MainWindow::on_searchFile_clicked()
+void MainWindow::on_selecFile_clicked()
 {
     /*trigger the file search */
     this->FileName = QFileDialog::getOpenFileName(this,"Open .bin file",
                                                   "C:\\Users\\abhishek.pandey.TELXSI\\e2_studio\\Manual_test\\",
                                                   "*.bin");
-    ui->fileLocation->setPlainText(this->FileName);
-
-}
-
-void MainWindow::on_selecFile_clicked()
-{
     /* Open the selected file */
     this->fp = fopen(this->FileName.toStdString().c_str(),"rb");
     if(this->fp == NULL)
@@ -54,8 +43,9 @@ void MainWindow::on_selecFile_clicked()
         fseek (this->fp , 0 , SEEK_END);
         this->FileSize = ftell (this->fp);
         rewind(this->fp);
-        QMessageBox::information(this,"File Size",QString::number(this->FileSize));
         ui->downloadProgressBar->setValue(0);
+        ui->fileLocation->setText(this->FileName);
+        ui->fileSizeWR->setNum((double)this->FileSize);
     }
 }
 
@@ -341,7 +331,7 @@ uint8_t MainWindow :: notify_user(uint8_t status)
     case ACK_DWN_COMPLETE       :
         ui->downloadStatus->setText("Status : Download success.");
         QMessageBox::information(this,"Complete"," Download is complete"
-                                                        "Starting app");
+                                                        " Starting app");
         return ACK_DWN_COMPLETE;
         ack_status = 0;
         break;
@@ -391,6 +381,8 @@ void MainWindow::on_SelectComPort_Disconnect_clicked()
         ui->label_wr_ofst->setText("None");
         ui->label_wr_apcount_2->setText("None");
         ui->downloadProgressBar->reset();
+        ui->fileSizeWR->setText("unknown");
+        ui->downloadStatus->setText("Status :");
     }
 }
 

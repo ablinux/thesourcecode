@@ -19,6 +19,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->downloadProgressBar->setValue(0);
     this->get_ComPorts();
+    ui->comboBoxBaudrate->addItem("115200");
+    ui->comboBoxBaudrate->addItem("57600");
+    ui->comboBoxBaudrate->addItem("38400");
+    ui->comboBoxBaudrate->addItem("19200");
+    ui->comboBoxBaudrate->addItem("14400");
+    ui->comboBoxBaudrate->addItem("9600");
     this->FileSize = 0;
 }
 
@@ -31,9 +37,17 @@ void MainWindow::on_selecFile_clicked()
 {
     /*trigger the file search */
     this->FileSize = 0;
-    this->FileName = QFileDialog::getOpenFileName(this,"Open .bin file",
-                                                  "C:\\Users\\abhishek.pandey.TELXSI\\e2_studio\\Manual_test\\",
-                                                  "*.bin");
+    /* check if user has already placed the file in text field ?*/
+    if(0 == ui->fileLocation->displayText().count())
+    {
+        this->FileName = QFileDialog::getOpenFileName(this,"Open .bin file",
+                                                      "C:\\Users\\abhishek.pandey.TELXSI\\e2_studio\\Manual_test\\",
+                                                      "*.bin");
+    }
+    else
+    {
+        this->FileName = ui->fileLocation->displayText();
+    }
     /* Open the selected file */
     this->fp = fopen(this->FileName.toStdString().c_str(),"rb");
     if(this->fp == NULL)
@@ -177,7 +191,7 @@ void MainWindow ::set_Comms()
     if (Status == FALSE)
         printf("\n   Error! in GetCommState()");
 
-    dcbSerialParams.BaudRate = 115200;      // Setting BaudRate = 9600
+    dcbSerialParams.BaudRate = ui->comboBoxBaudrate->currentText().toUInt();//115200;      // Setting BaudRate = 9600
     dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
     dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
     dcbSerialParams.Parity   = NOPARITY;      // Setting Parity = None

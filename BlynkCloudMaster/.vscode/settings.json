@@ -1,0 +1,28 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\AbPandey\\.platformio\\penv\\Scripts;C:\\Users\\AbPandey\\.platformio\\penv;C:\\Python27\\;C:\\Python27\\Scripts;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\iCLS\\;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\iCLS\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Windows\\CCM;C:\\Program Files (x86)\\WebEx\\Productivity Tools;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\TortoiseHg\\;C:\\Program Files\\Perforce;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Intel\\WiFi\\bin\\;C:\\Program Files\\Common Files\\Intel\\WirelessCommon\\;C:\\Program Files (x86)\\Cypress\\Cypress Programmer;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin\\;C:\\Program Files\\IVI Foundation\\VISA\\Win64\\Bin\\;C:\\Program Files (x86)\\Webex\\Webex\\Applications;C:\\Program Files\\TortoiseGit\\bin;C:\\Program Files (x86)\\Sennheiser\\SoftphoneSDK\\;D:\\Softwares\\cmake-3.15.0-rc2-win64-x64\\cmake-3.15.0-rc2-win64-x64\\bin;C:\\MinGW\\bin;C:\\Users\\AbPandey\\AppData\\Local\\Microsoft\\WindowsApps;C:\\MinGW\\bin\\;;C:\\Users\\AbPandey\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Python27\\;C:\\Python27\\Scripts;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\iCLS\\;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\iCLS\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Windows\\CCM;C:\\Program Files (x86)\\WebEx\\Productivity Tools;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\TortoiseHg\\;C:\\Program Files\\Perforce;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Intel\\WiFi\\bin\\;C:\\Program Files\\Common Files\\Intel\\WirelessCommon\\;C:\\Program Files (x86)\\Cypress\\Cypress Programmer;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin\\;C:\\Program Files\\IVI Foundation\\VISA\\Win64\\Bin\\;C:\\Program Files (x86)\\Webex\\Webex\\Applications;C:\\Program Files\\TortoiseGit\\bin;C:\\Program Files (x86)\\Sennheiser\\SoftphoneSDK\\;D:\\Softwares\\cmake-3.15.0-rc2-win64-x64\\cmake-3.15.0-rc2-win64-x64\\bin;C:\\MinGW\\bin;C:\\Users\\AbPandey\\AppData\\Local\\Microsoft\\WindowsApps;C:\\MinGW\\bin\\;;C:\\Users\\AbPandey\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+        "PLATFORMIO_CALLER": "vscode"
+    },
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "googletest.failed",
+                "settings": {
+                    "foreground": "#f00"
+                }
+            },
+            {
+                "scope": "googletest.passed",
+                "settings": {
+                    "foreground": "#0f0"
+                }
+            },
+            {
+                "scope": "googletest.run",
+                "settings": {
+                    "foreground": "#0f0"
+                }
+            }
+        ]
+    }
+}

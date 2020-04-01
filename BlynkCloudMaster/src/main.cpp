@@ -8,6 +8,7 @@
 #include "airCommandHandler.h"
 #include "serialization.h"
 #include <Sd.h>
+#include "remoreNode1.h"
 
 /* AirMail Settings */
 airMail_t airMail = {NULL};
@@ -48,12 +49,23 @@ NodeDescripter_t NodeDescripter[MAX_NODE_SUPPORTED];
 
 /* Virtual pin callbacks **********************************/
 char val[5];
+extern airMail_t airMail_a;
+extern uint8_t buffer[10];
 BLYNK_WRITE(V0)
 {
+  DeviceOne_t dev1;
   memcpy(val,param.asStr(),4);
   radio.stopListening();
   radio.openWritingPipe(slaveAddress);
-  radio.write(val,4);//param.asStr; // Get value as integer
+  airMail_a.airCommand = COMMAND_SET;
+  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+  airMail_a.mailHeader.dataLength = 2;
+  dev1.deviceID = FISHTANK;
+  dev1.dataByte = param.asInt();
+  memcpy(airMail_a.data,&dev1,sizeof(dev1));
+  serialize_airmail(buffer,&airMail_a,3);
+  radio.write(buffer, 10);
+  //radio.write(val,4);//param.asStr; // Get value as integer
   radio.startListening();
 }
 BLYNK_WRITE(V1)

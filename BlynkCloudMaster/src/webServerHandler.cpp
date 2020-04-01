@@ -1,7 +1,9 @@
 #include "webServerHandler.h"
 #include <nRF24L01.h>
 #include "AirConnectionInterface.h"
+#include "serialization.h"
 #include <RF24.h>
+#include <remoreNode1.h>
 
 extern char httmlpage[];
 
@@ -22,6 +24,8 @@ void handleRoot()
 }
 
 // char value[5] = "11";
+airMail_t airMail_a;
+uint8_t buffer[10];
 void TVLEDState()
 {
   Serial.println("TV LED CH Req");
@@ -30,20 +34,31 @@ void TVLEDState()
   display.display();
   static char value[5] = "11";
   static int toggle = 0;
+  DeviceOne_t dev1;
   if (readRequest == 0)
   {
     if (toggle % 2)
     {
       strcpy(value, "10");
+      dev1.dataByte = 0;
     }
     else
     {
       strcpy(value, "20");
+      dev1.dataByte = 1;
     }
     toggle++;
     radio.stopListening();
     radio.openWritingPipe(slaveAddress);
-    radio.write(&value, 3);
+    // radio.write(&value, 3);
+    airMail_a.airCommand = COMMAND_SET;
+    airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+    airMail_a.mailHeader.dataLength = 2;
+    dev1.deviceID = FISHTANK;
+
+    memcpy(airMail_a.data,&dev1,sizeof(dev1));
+    serialize_airmail(buffer,&airMail_a,3);
+    radio.write(buffer, 10);
     radio.startListening();
   }
   else
@@ -59,20 +74,31 @@ void TOPLEDState()
   display.print("LED");
   static char value[5] = "11";
   static int toggle = 0;
+   DeviceOne_t dev1;
   if (readRequest == 0)
   {
     if (toggle % 2)
     {
       strcpy(value, "50");
+      dev1.dataByte = 0;
     }
     else
     {
       strcpy(value, "60");
+      dev1.dataByte = 1;
     }
     toggle++;
     radio.stopListening();
     radio.openWritingPipe(slaveAddress);
-    radio.write(&value, 3);
+    airMail_a.airCommand = COMMAND_SET;
+    airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+    airMail_a.mailHeader.dataLength = 2;
+    dev1.deviceID = TV;
+
+    memcpy(airMail_a.data,&dev1,sizeof(dev1));
+    serialize_airmail(buffer,&airMail_a,3);
+    radio.write(buffer, 10);
+    // radio.write(&value, 3);
     radio.startListening();
   }
   else

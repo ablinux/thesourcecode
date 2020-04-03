@@ -9,6 +9,18 @@
 #include "serialization.h"
 #include <Sd.h>
 #include "remoreNode1.h"
+#include "sdWebServer.h"
+#include <DallasTemperature.h>
+
+/* Temp sensor setting */
+OneWire oneWire(TEMP_ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
+/* Global var*/
+bool hasSD = false; //shared with sdWebServer.cpp file
+
+/* Debug */
+#define DBG_OUTPUT_PORT Serial
 
 /* AirMail Settings */
 airMail_t airMail = {NULL};
@@ -109,12 +121,9 @@ int x,y;
 File myFile;
 void handleSlider()
 {
-  display.setCursor(x,y);
-  String t_state = server.arg("range");
-  display.print("t_state.toInt()");
-  display.display();
-  Serial.println("Slider is on");
-  Serial.println(t_state.toInt());
+  Serial.print("Slider Request:");
+  String sliderValue = server.arg("SliderVal");
+  Serial.println(sliderValue);
 }
 void setup()
 {
@@ -126,22 +135,17 @@ void setup()
   radio.startListening();
 
   /* Init The SD card */
-  #if 0
+  #if 1
   if (!SD.begin(D0)) {
-    Serial.println("initialization failed!");
-    while (1);
+    Serial.println("SD init Fail");
+    hasSD = false;
   }
-  myFile = SD.open("test.txt", FILE_WRITE);
-  if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    // close the file:
-    myFile.close();
-    Serial.println("done.");
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+  else
+  {
+    Serial.println("SD init PASS!");
+    hasSD = true;
   }
+  
 #endif
   /* Display Setting */
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
@@ -169,23 +173,41 @@ void setup()
 #endif
   /* Setup the OTA */
   OtaSetup();
+
+  /* Temp init */
+  sensors.begin();
+
   // pinMode(16, INPUT_PULLUP);
   display.println("connected.");
   display.print("IP: "); display.print(WiFi.localIP());display.println();display.display();
   x = display.getCursorX(); y = display.getCursorY();
 
-  server.on("/", handleRoot);
+  // server.on("/", handleRoot);
   server.on("/tvled", TVLEDState);
   server.on("/topled", TOPLEDState);
   server.on("/bedroomled", BEDLEDState);
   server.on("/readADC", handleTemp);
   server.on("/Slider", handleSlider);
+
+  /* sdWebServer handlers dir:=sdWebServer.cpp/.h*/
+  server.on("/list", HTTP_GET, printDirectory);
+  server.on("/edit", HTTP_DELETE, handleDelete);
+  server.on("/edit", HTTP_PUT, handleCreate);
+  server.on(
+      "/edit", HTTP_POST, []() {
+        returnOK();
+      },
+      handleFileUpload);
+  server.onNotFound(handleNotFound);
+  server.on("/readADC", handleTemp);
+
   server.begin();
   // attachInterrupt(digitalPinToInterrupt(16),RF_ISR,FALLING);
 }
 
 void loop()
 {
+  #if 0
   if(radio.available())
   {
     radio.read(rcvRadioByteStream,32);
@@ -193,6 +215,7 @@ void loop()
     readNotify(true);
   }
   airNotificationHandler(&airMail);
+  #endif
   server.handleClient();
   ArduinoOTA.handle();
   Blynk.run();

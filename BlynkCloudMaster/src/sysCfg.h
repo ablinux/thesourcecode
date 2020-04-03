@@ -19,7 +19,13 @@
 #define SCREEN_HEIGHT 64       // OLED display height, in pixels
 
 /*NRF Setting */
-#define CE_PIN 0 
-#define CSN_PIN 2
+#define CE_PIN 0 //D3
+#define CSN_PIN 2 //DD4
+
+/* Temp sensor setting */
+#define TEMP_ONE_WIRE_BUS D0 //GPIO6
+
+/* SD chip select configuration */
+#define SD_CARD_CS_PIN    D8
 
 #endif

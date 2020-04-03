@@ -7,6 +7,8 @@
 #include <Ultrasonic.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <airCommandHandler.h>
+#include <serialization.h>
 
 /*A NRF Setting */
 const byte thisSlaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -14,7 +16,7 @@ const byte thisSlaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
 #define CE_PIN 9
 #define CSN_PIN 10
 RF24 radio(CE_PIN, CSN_PIN);
-char dataReceived[10]; // this must match dataToSend in the TX
+uint8_t dataReceived[32]; // this must match dataToSend in the TX
 /************************************/
 
 /*B Screen Setting OLED */
@@ -25,19 +27,21 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 int i = 0;
 unsigned long time;
+extern airCommandHandler_t handlers;
 
 void setup()
 {
   pinMode(8, OUTPUT);
   digitalWrite(8, LOW);
-  pinMode(7, OUTPUT);
-  digitalWrite(7, LOW);
+  pinMode(9, OUTPUT);
+  digitalWrite(9, LOW);
   /* Serial setting */
   Serial.begin(9600);
 
   /* NRF Setting */
   radio.begin();
   radio.setDataRate(RF24_250KBPS);
+  radio.setPALevel(RF24_PA_HIGH); radio.setRetries(5, 10);
   radio.openReadingPipe(1, thisSlaveAddress);
   radio.startListening();
 
@@ -58,42 +62,26 @@ void setup()
   display.println(__TIME__);
   display.display();
   delay(4000);
+  RegisterHandlers(&handlers);
 }
 
 int val;
-
+airMail_t airMail;
 void loop()
 {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print("NodeShark V1");
+
   if (Serial.available())
   {
     val = Serial.parseInt();
   }
   else if (radio.available())
   {
+    readNotify(true);
     radio.read(&dataReceived, sizeof(dataReceived));
-    val = atoi(dataReceived);
-    Serial.print("NRF message"); Serial.println(atoi(dataReceived));
-  }
-
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("NodeShark V1");
-  display.print("Message:"); display.print(val);
-  display.display();
-  if(10 == val)
-  {
-    digitalWrite(8,HIGH);
-  }
-  else if(20 == val)
-  {
-    digitalWrite(8,LOW);
-  }
-  else if (50 == val)
-  {
-    digitalWrite(7,HIGH);
-  }
-  else if (60 == val)
-  {
-    digitalWrite(7,LOW);
+    de_serialize_airmail(&airMail,dataReceived);
+    airNotificationHandler(&airMail);
   }
 }

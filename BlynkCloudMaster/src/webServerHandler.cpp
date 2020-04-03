@@ -5,8 +5,6 @@
 #include <RF24.h>
 #include <remoreNode1.h>
 
-extern char httmlpage[];
-
 extern ESP8266WebServer server;
 const byte ExpNode1[5] = {'N', 'O', 'D', 'E', '1'};
 const byte slaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -16,12 +14,6 @@ extern int x,y;
 extern Adafruit_SSD1306 display;
 /* ESP8266WebServer Callbacks ********************************/
 static int readRequest = 0;
-void handleRoot()
-{
-  Serial.println("WebPage request..");
-  server.send(200, "text/html", httmlpage);
-  readRequest=1;
-}
 
 // char value[5] = "11";
 airMail_t airMail_a;
@@ -124,13 +116,14 @@ void BEDLEDState()
   }
 }
 
+#include <DallasTemperature.h>
+float Celcius;
+extern DallasTemperature sensors;
 void handleTemp()
 {
-  int reading = analogRead(PIN_A0);
-  // converting that reading to voltage, for 3.3v arduino use 3.3
-  float voltage = reading * 3.3 / 1024;
-  float temperatureC = (voltage - 0.5) * 100;
-  String temperatureC_string = String(temperatureC);
-  server.send(200, "text/plane", temperatureC_string);
+  sensors.requestTemperatures(); 
+  Celcius=sensors.getTempCByIndex(0);
+  String Temp = String(Celcius);
+  server.send(200, "text/plane", Temp);
 }
 /**************************************************************/

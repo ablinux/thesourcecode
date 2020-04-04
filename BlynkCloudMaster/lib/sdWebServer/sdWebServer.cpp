@@ -1,5 +1,6 @@
 #include "sdWebServer.h"
-#include "common.h"
+// #include "common.h"
+#include <ESP8266WebServer.h>
 #include <SD.h>
 #define DBG_OUTPUT_PORT Serial
 

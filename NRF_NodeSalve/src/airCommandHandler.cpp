@@ -38,10 +38,10 @@ void airNotificationHandler(airMail_t *p_mail)
         
         case PKT_DEVICE_ACTUATOR:
         Serial.println("Device Actuator");
-        if(p_callTo->p_call_handleAcuatorDevice)
-            p_callTo->p_call_handleAcuatorDevice(p_mail->data);
+        if(p_callTo->p_call_OnOffDevice)
+            p_callTo->p_call_OnOffDevice(p_mail->data);
         else
-            Serial.println("Actuation call not registed");
+            Serial.println("OnOff call not registed");
         break;
         
         

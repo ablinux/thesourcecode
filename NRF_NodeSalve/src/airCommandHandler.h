@@ -5,7 +5,7 @@
 typedef struct airCommandHandler
 {
     void (*p_call_handleAck)(uint8_t* data);
-    void (*p_call_handleAcuatorDevice)(uint8_t* data);
+    void (*p_call_OnOffDevice)(uint8_t* data);
     void (*p_call_sendAck)(uint8_t* data);
     void (*p_call_handleUpdate)(uint8_t* data);
     void (*p_call_handleSensorDevice)(uint8_t* data);

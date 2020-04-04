@@ -6,7 +6,7 @@ extern Adafruit_SSD1306 display;
 
 airCommandHandler_t handlers ={
     p_call_handleAck : handleAck,
-    p_call_handleAcuatorDevice : NULL,
+    p_call_OnOffDevice : NULL,
     p_call_sendAck : NULL,
     p_call_handleUpdate : NULL,
     p_call_handleSensorDevice : handleSensorDevice
@@ -16,7 +16,7 @@ void handleAck(uint8_t *data)
 {
 }
 
-void handleAcuatorDevice(uint8_t *data)
+void OnOffDevice(uint8_t *data)
 {
 }
 

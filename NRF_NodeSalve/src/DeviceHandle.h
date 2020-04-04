@@ -18,7 +18,7 @@ typedef struct NodeOneInterface
 }DeviceOne_t;
 
 void handleAck          (uint8_t* data);
-void handleAcuatorDevice(uint8_t* data);
+void OnOffDevice(uint8_t* data);
 void sendAck            (uint8_t* data);
 void handleUpdate       (uint8_t* data);
 void handleSensorDevice (uint8_t* data);

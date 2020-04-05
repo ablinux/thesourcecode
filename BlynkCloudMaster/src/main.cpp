@@ -10,11 +10,14 @@
 #include <Sd.h>
 #include "remoreNode1.h"
 #include "../lib/sdWebServer/sdWebServer.h"
-#include <DallasTemperature.h>
 
+
+#if TEMP
 /* Temp sensor setting */
+#include <DallasTemperature.h>
 OneWire oneWire(TEMP_ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
+#endif
 
 /* Global var*/
 bool hasSD = false; //shared with sdWebServer.cpp file
@@ -119,12 +122,6 @@ void ICACHE_RAM_ATTR RF_ISR()
 }
 int x,y;
 File myFile;
-void handleSlider()
-{
-  Serial.print("Slider Request:");
-  String sliderValue = server.arg("SliderVal");
-  Serial.println(sliderValue);
-}
 void setup()
 {
   Serial.begin(115200);
@@ -136,7 +133,7 @@ void setup()
 
   /* Init The SD card */
   #if 1
-  if (!SD.begin(D0)) {
+  if (!SD.begin(SD_CARD_CS_PIN)) {
     Serial.println("SD init Fail");
     hasSD = false;
   }
@@ -145,8 +142,13 @@ void setup()
     Serial.println("SD init PASS!");
     hasSD = true;
   }
-  
 #endif
+
+  /* Temp setting*/
+#if TEMP
+  sensors.begin();
+#endif
+
   /* Display Setting */
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { 
@@ -174,15 +176,11 @@ void setup()
   /* Setup the OTA */
   OtaSetup();
 
-  /* Temp init */
-  sensors.begin();
-
   // pinMode(16, INPUT_PULLUP);
   display.println("connected.");
   display.print("IP: "); display.print(WiFi.localIP());display.println();display.display();
   x = display.getCursorX(); y = display.getCursorY();
 
-  // server.on("/", handleRoot);
   server.on("/tvled", TVLEDState);
   server.on("/topled", TOPLEDState);
   server.on("/bedroomled", BEDLEDState);

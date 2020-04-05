@@ -6,6 +6,6 @@ void TVLEDState();
 void TOPLEDState();
 void BEDLEDState();
 void handleTemp();
-
+void handleSlider();
 
 #endif

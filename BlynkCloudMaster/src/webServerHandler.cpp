@@ -116,14 +116,41 @@ void BEDLEDState()
   }
 }
 
+void handleSlider()
+{
+  DeviceOne_t dev1;
+  Serial.print("Slider Request:");
+  String sliderValue = server.arg("SliderVal");
+  Serial.println(sliderValue);
+  radio.stopListening();
+  radio.openWritingPipe(slaveAddress);
+  airMail_a.airCommand = COMMAND_SET;
+  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+  airMail_a.mailHeader.dataLength = 2;
+  dev1.deviceID = TV;
+  dev1.dataByte = sliderValue.toInt();
+  memcpy(airMail_a.data,&dev1,sizeof(dev1));
+  serialize_airmail(buffer,&airMail_a,4);
+  radio.write(buffer, 10);
+  // radio.write(&value, 3);
+  radio.startListening();
+}
+
+#if TEMP
 #include <DallasTemperature.h>
 float Celcius;
 extern DallasTemperature sensors;
+#endif
+
 void handleTemp()
 {
+  #if TEMP
   sensors.requestTemperatures(); 
   Celcius=sensors.getTempCByIndex(0);
   String Temp = String(Celcius);
   server.send(200, "text/plane", Temp);
+  #else if
+  server.send(200, "text/plane", "Sensor not connected");
+  #endif
 }
 /**************************************************************/

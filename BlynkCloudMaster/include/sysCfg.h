@@ -22,10 +22,14 @@
 #define CE_PIN 0 //D3
 #define CSN_PIN 2 //DD4
 
+#define TEMP 0
+
+#if TEMP
 /* Temp sensor setting */
-#define TEMP_ONE_WIRE_BUS D0 //GPIO6
+#define TEMP_ONE_WIRE_BUS D8 //GPIO6
+#endif
 
 /* SD chip select configuration */
-#define SD_CARD_CS_PIN    D8
+#define SD_CARD_CS_PIN    D0
 
 #endif

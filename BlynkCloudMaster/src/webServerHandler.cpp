@@ -22,7 +22,7 @@ void TVLEDState()
 {
   Serial.println("TV LED CH Req");
   display.setCursor(x,y);
-  display.print("TV");
+  display.setTextColor(WHITE,BLACK);display.print("TV");
   display.display();
   static char value[5] = "11";
   static int toggle = 0;
@@ -44,7 +44,7 @@ void TVLEDState()
     radio.openWritingPipe(slaveAddress);
     // radio.write(&value, 3);
     airMail_a.airCommand = COMMAND_SET;
-    airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+    airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
     airMail_a.mailHeader.dataLength = 2;
     dev1.deviceID = FISHTANK;
 
@@ -63,7 +63,7 @@ void TOPLEDState()
 {
   Serial.println("Top LED CH Req");
   display.setCursor(x,y);
-  display.print("LED");
+  display.setTextColor(WHITE,BLACK);display.print("LED");
   static char value[5] = "11";
   static int toggle = 0;
    DeviceOne_t dev1;
@@ -83,7 +83,7 @@ void TOPLEDState()
     radio.stopListening();
     radio.openWritingPipe(slaveAddress);
     airMail_a.airCommand = COMMAND_SET;
-    airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+    airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
     airMail_a.mailHeader.dataLength = 2;
     dev1.deviceID = TV;
 
@@ -125,7 +125,7 @@ void handleSlider()
   radio.stopListening();
   radio.openWritingPipe(slaveAddress);
   airMail_a.airCommand = COMMAND_SET;
-  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+  airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
   airMail_a.mailHeader.dataLength = 2;
   dev1.deviceID = TV;
   dev1.dataByte = sliderValue.toInt();

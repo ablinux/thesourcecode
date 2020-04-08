@@ -5,7 +5,7 @@
 static bool notified = false;
 static bool getNotification ();
 extern void BlinkLed();
-
+extern Adafruit_SSD1306 display;
 /* Notification handler */
 void airNotificationHandler(airMail_t *p_mail)
 {
@@ -46,7 +46,8 @@ void airNotificationHandler(airMail_t *p_mail)
 void handleACK()
 {
     /* */
-
+    static int i=0;
+    display.setCursor(0,23);display.setTextColor(WHITE,BLACK);display.print(i++);display.display();
 }
 void handleAcuatorDevice()
 {

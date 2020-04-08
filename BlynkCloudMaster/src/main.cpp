@@ -73,7 +73,7 @@ BLYNK_WRITE(V0)
   radio.stopListening();
   radio.openWritingPipe(slaveAddress);
   airMail_a.airCommand = COMMAND_SET;
-  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+  airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
   airMail_a.mailHeader.dataLength = 2;
   dev1.deviceID = FISHTANK;
   dev1.dataByte = param.asInt();
@@ -126,7 +126,7 @@ void setup()
 {
   Serial.begin(115200);
   /* NRF setup */
-  radio.begin();  radio.setDataRate( RF24_250KBPS ); radio.setPALevel(RF24_PA_HIGH); radio.setRetries(5, 10);
+  radio.begin();  radio.setDataRate( RF24_250KBPS ); radio.setPALevel(RF24_PA_HIGH); radio.setRetries(1, 15);
 
   radio.openReadingPipe(1,Myaddress);
   radio.startListening();
@@ -160,10 +160,9 @@ void setup()
   display.clearDisplay(); display.setTextSize(1);display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0, 0);
 
-  display.print("connecting...to WIFI ");display.println();display.display();
-  /* Connect to the wifi */
+  display.println("WIFI [ON]");display.println("Searching yourSSID..");display.display();
   
-  /* Blynk */
+  /* Blynk */ /* Connect to the wifi */
   Blynk.begin(auth, ssid, pass);
 
   /* Set the hostname */
@@ -175,9 +174,7 @@ void setup()
 #endif
   /* Setup the OTA */
   OtaSetup();
-
-  // pinMode(16, INPUT_PULLUP);
-  display.println("connected.");
+  display.clearDisplay(); display.setCursor(0, 0);// Clear previous data
   display.print("IP: "); display.print(WiFi.localIP());display.println();display.display();
   x = display.getCursorX(); y = display.getCursorY();
 
@@ -205,9 +202,10 @@ void setup()
 
 void loop()
 {
-  #if 0
+  #if 1
   if(radio.available())
   {
+    Serial.println("Incoming packet from slave device");
     radio.read(rcvRadioByteStream,32);
     de_serialize_airmail(&airMail,rcvRadioByteStream);
     readNotify(true);

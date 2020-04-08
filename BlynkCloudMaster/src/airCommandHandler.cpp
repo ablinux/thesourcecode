@@ -5,7 +5,7 @@
 static bool notified = false;
 static bool getNotification ();
 extern void BlinkLed();
-extern Adafruit_SSD1306 display;
+
 /* Notification handler */
 void airNotificationHandler(airMail_t *p_mail)
 {

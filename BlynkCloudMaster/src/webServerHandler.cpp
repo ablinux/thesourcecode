@@ -11,7 +11,7 @@ const byte slaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
 
 extern RF24 radio;
 extern int x,y;
-extern Adafruit_SSD1306 display;
+
 /* ESP8266WebServer Callbacks ********************************/
 static int readRequest = 0;
 

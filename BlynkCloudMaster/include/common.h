@@ -17,7 +17,7 @@
 #include "Adafruit_MQTT_Client.h"
 // #include <nRF24L01.h>
 // #include <RF24.h>
-
+extern Adafruit_SSD1306 display;
 #include "OTA.hpp"
 
 #endif

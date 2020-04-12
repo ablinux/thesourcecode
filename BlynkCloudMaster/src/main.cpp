@@ -11,6 +11,12 @@
 #include "remoreNode1.h"
 #include "../lib/sdWebServer/sdWebServer.h"
 
+#if EN_NTP_TIME
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", UTC_OFFSET_IN_SECONDS);
+Ticker UpdateTimeOnLCD_everySecond;
+bool is_ntpConnected;
+#endif
 
 #if TEMP
 /* Temp sensor setting */
@@ -183,6 +189,8 @@ void setup()
   server.on("/bedroomled", BEDLEDState);
   server.on("/readADC", handleTemp);
   server.on("/Slider", handleSlider);
+  server.on("/readADC", handleTemp);
+  server.on("/getTime", handleTime);
 
   /* sdWebServer handlers dir:=sdWebServer.cpp/.h*/
   server.on("/list", HTTP_GET, printDirectory);
@@ -194,9 +202,13 @@ void setup()
       },
       handleFileUpload);
   server.onNotFound(handleNotFound);
-  server.on("/readADC", handleTemp);
 
   server.begin();
+
+/* Setup the NTP time server */
+#if EN_NTP_TIME
+  timeClient.begin();
+#endif
   // attachInterrupt(digitalPinToInterrupt(16),RF_ISR,FALLING);
 }
 
@@ -205,6 +217,7 @@ void loop()
   #if 1
   if(radio.available())
   {
+    memset(rcvRadioByteStream,0x00,sizeof(rcvRadioByteStream));
     Serial.println("Incoming packet from slave device");
     radio.read(rcvRadioByteStream,32);
     de_serialize_airmail(&airMail,rcvRadioByteStream);
@@ -215,12 +228,23 @@ void loop()
   server.handleClient();
   ArduinoOTA.handle();
   Blynk.run();
+
+#if EN_NTP_TIME
+  uint8_t tempBuff[12];
+  if(timeClient.update())
+  {
+    display.setCursor(0,40);display.setTextColor(WHITE,BLACK);
+    display.printf("TIME: %d:%d:%d   ",timeClient.getHours(),timeClient.getMinutes(),timeClient.getSeconds());
+    display.display();
+  }
+#endif
 }
 
 #if 0
 /* Adafruit_MQTT_Client Connect */
 int MQTT_connect()
 {
+
   int8_t ret = 0;
   // Stop if already connected.
   if (mqtt.connected())   { return 1;}

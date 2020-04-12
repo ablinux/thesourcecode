@@ -5,10 +5,10 @@
 #include <RF24.h>
 #include <remoreNode1.h>
 
-extern ESP8266WebServer server;
 const byte ExpNode1[5] = {'N', 'O', 'D', 'E', '1'};
 const byte slaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
 
+char TempInC[5];
 extern RF24 radio;
 extern int x,y;
 
@@ -132,7 +132,6 @@ void handleSlider()
   memcpy(airMail_a.data,&dev1,sizeof(dev1));
   serialize_airmail(buffer,&airMail_a,4);
   radio.write(buffer, 10);
-  // radio.write(&value, 3);
   radio.startListening();
 }
 
@@ -150,7 +149,14 @@ void handleTemp()
   String Temp = String(Celcius);
   server.send(200, "text/plane", Temp);
   #else if
-  server.send(200, "text/plane", "Sensor not connected");
+  server.send(200, "text/plane", TempInC);
   #endif
+}
+
+void handleTime()
+{
+  char time[10];
+  sprintf(time,"%d:%d:%d",timeClient.getHours(),timeClient.getMinutes(),timeClient.getSeconds());
+  server.send(200,"text/plane",time);
 }
 /**************************************************************/

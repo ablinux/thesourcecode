@@ -15,9 +15,22 @@
 #include <Adafruit_SSD1306.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
+
+/* NTP Time */
+#include <NTPClient.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+
+/* Ticker */
+#include <Ticker.h>
+
 // #include <nRF24L01.h>
 // #include <RF24.h>
 extern Adafruit_SSD1306 display;
+extern WiFiUDP ntpUDP;
+extern NTPClient timeClient;
+extern ESP8266WebServer server;
+extern void DisplayTimeOnLCD();
 #include "OTA.hpp"
 
 #endif

@@ -7,5 +7,6 @@ void TOPLEDState();
 void BEDLEDState();
 void handleTemp();
 void handleSlider();
+void handleTime();
 
 #endif

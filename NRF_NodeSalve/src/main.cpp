@@ -12,6 +12,7 @@
 
 /* Private Function */
 void sendDeviceConnectStatus();
+void SendTempData();
 
 /*A NRF Setting */
 const byte thisSlaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -50,15 +51,7 @@ void setup()
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
 
-  Serial.begin(9600);
-
-  /* Display Setting */
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));
-    // for (;;)
-      isDispOn = 0; // Don't proceed, loop forever
-  }
+  Serial.begin(115200);
 
   /* NRF Setting */
   radio.begin();
@@ -66,6 +59,14 @@ void setup()
   radio.setPALevel(RF24_PA_MIN); radio.setRetries(5, 15);
   radio.openReadingPipe(1, thisSlaveAddress);
   radio.startListening();
+
+  /* Display Setting */
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
+  { // Address 0x3D for 128x64
+    Serial.println(F("SSD1306 allocation failed"));
+    // for (;;)
+      isDispOn = 0; // Don't proceed, loop forever
+  }
 
   if(isDispOn)
   {
@@ -80,7 +81,6 @@ void setup()
     display.display();
   }
   
-  delay(2000);
   RegisterHandlers(&handlers);
 
   if(isDispOn)
@@ -116,16 +116,18 @@ void loop()
   if(tempReadCount == 0)
   {
     analogVal = analogRead(LM61_ANALOG_PIN);
-    tempINc =  ((analogVal*500.0)/1024)-60;
+    tempINc =  ((analogVal*500.0)/1024)-(60+16.55);
     Serial.print("Room Temp");Serial.println(tempINc);
     if(isDispOn)
     {
       display.setCursor(0,30);display.print("Room Temp: ");display.setCursor(display.getCursorX(),29);display.setTextColor(WHITE,BLACK);display.print(tempINc); 
       display.display();
     }
-    tempReadCount = 99999;
+    tempReadCount = 10000;
     sendDeviceConnectStatus();
   }
+  if(tempReadCount == 5000)
+    SendTempData();
 }
 
 void sendDeviceConnectStatus()
@@ -139,5 +141,21 @@ void sendDeviceConnectStatus()
   memcpy(airMail_a.data,thisSlaveAddress,sizeof(thisSlaveAddress));
   serialize_airmail(tempBuffer,&airMail_a,sizeof(thisSlaveAddress));
   radio.write(tempBuffer,sizeof(thisSlaveAddress)+3+1);
+  radio.startListening();
+}
+void SendTempData()
+{
+  uint8_t tempBuffer[15];
+  String StrTemp = String(tempINc);
+  radio.stopListening();
+  radio.openWritingPipe(MasterAddress);
+  /* prepair data here */
+  // sprintf((char*)TempData,"%f", tempINc);
+  Serial.println(StrTemp);
+  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
+  airMail_a.mailHeader.dataLength = StrTemp.length();
+  memcpy(airMail_a.data,StrTemp.c_str(),airMail_a.mailHeader.dataLength+1);
+  serialize_airmail(tempBuffer,&airMail_a,airMail_a.mailHeader.dataLength+1);
+  radio.write(tempBuffer,airMail_a.mailHeader.dataLength+3+1);
   radio.startListening();
 }

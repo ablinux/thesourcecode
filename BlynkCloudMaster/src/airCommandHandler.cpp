@@ -5,7 +5,7 @@
 static bool notified = false;
 static bool getNotification ();
 extern void BlinkLed();
-
+extern char TempInC[];
 /* Notification handler */
 void airNotificationHandler(airMail_t *p_mail)
 {
@@ -17,14 +17,14 @@ void airNotificationHandler(airMail_t *p_mail)
     {
         case PKT_ACK:
         Serial.println("ACK Packet");
-        handleACK();
+        handleACK(p_mail);
         break;
         case PKT_DEVICE_ACTUATOR:
         Serial.println("Device Actuator");
         break;
         case PKT_DEVICE_SENSOR:
         Serial.println("Device Sensor");
-        handleSensorDevice();
+        handleSensorDevice(p_mail);
         break;
         case PKT_REGISTRATION:
         Serial.println("Registration Packet");
@@ -43,11 +43,12 @@ void airNotificationHandler(airMail_t *p_mail)
     }
 }
 
-void handleACK()
+void handleACK(airMail_t *p_mail)
 {
     /* */
     static int i=0;
-    display.setCursor(0,23);display.setTextColor(WHITE,BLACK);display.print(i++);display.display();
+    display.setCursor(0,23);display.setTextColor(WHITE,BLACK);display.printf("Node addr: %s \nCount [%d]",p_mail->data,i);display.display();
+    i++;
 }
 void handleAcuatorDevice()
 {
@@ -61,9 +62,10 @@ void handleUpdate()
 {
 
 }
-void handleSensorDevice()
+void handleSensorDevice(airMail_t *p_mail)
 {
-
+    display.setCursor(0,49);display.setTextColor(WHITE,BLACK);display.printf("Room Temp:%s",p_mail->data);display.display();
+    memcpy(TempInC,p_mail->data,5);
 }
 
 void readNotify(bool isNotify)

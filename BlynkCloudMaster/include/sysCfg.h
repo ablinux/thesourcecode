@@ -22,14 +22,19 @@
 #define CE_PIN 0 //D3
 #define CSN_PIN 2 //DD4
 
-#define TEMP 0
-
-#if TEMP
 /* Temp sensor setting */
+#define TEMP 0
+#if TEMP
 #define TEMP_ONE_WIRE_BUS D8 //GPIO6
 #endif
 
 /* SD chip select configuration */
 #define SD_CARD_CS_PIN    D0
+
+/* NTP lib setting */
+#define EN_NTP_TIME 1
+#if EN_NTP_TIME 
+#define UTC_OFFSET_IN_SECONDS 5.5*60*60 //5.5 = +5:30 india time
+#endif
 
 #endif

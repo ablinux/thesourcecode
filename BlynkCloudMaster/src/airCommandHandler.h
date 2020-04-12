@@ -6,10 +6,10 @@
 void airNotificationHandler(airMail_t *p_mail);
 void readNotify(bool );
 
-void handleACK();
+void handleACK(airMail_t *p_mail);
 void handleAcuatorDevice();
 void handleDeviceReg();
 void handleUpdate();
-void handleSensorDevice();
+void handleSensorDevice(airMail_t *p_mail);
 
 #endif

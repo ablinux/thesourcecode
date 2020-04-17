@@ -134,6 +134,7 @@ void sendDeviceConnectStatus()
 {
   uint8_t tempBuffer[15];
   radio.stopListening();
+  radio.flush_tx();
   radio.openWritingPipe(MasterAddress);
   /* prepair data here */
   airMail_a.mailHeader.pktType = PKT_ACK;
@@ -148,6 +149,7 @@ void SendTempData()
   uint8_t tempBuffer[15];
   String StrTemp = String(tempINc);
   radio.stopListening();
+  radio.flush_tx();
   radio.openWritingPipe(MasterAddress);
   /* prepair data here */
   // sprintf((char*)TempData,"%f", tempINc);

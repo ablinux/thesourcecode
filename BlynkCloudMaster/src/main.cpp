@@ -43,7 +43,8 @@ char ssid[] = "yourSSID";
 char pass[] = "password";
 
 /* RF Setting : Slave address configuration */
-extern byte slaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
+extern byte slaveAddress_A[5] = {'R', 'x', 'A', 'A', 'A'};
+extern byte slaveAddress_B[5] = {'R', 'x', 'A', 'A', 'B'};
 byte Myaddress[5]={'M', 'A', 'S', 'T', 'R'};
 RF24 radio(CE_PIN, CSN_PIN);
 
@@ -77,7 +78,7 @@ BLYNK_WRITE(V0)
   DeviceOne_t dev1;
   memcpy(val,param.asStr(),4);
   radio.stopListening();
-  radio.openWritingPipe(slaveAddress);
+  radio.openWritingPipe(slaveAddress_A);
   airMail_a.airCommand = COMMAND_SET;
   airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
   airMail_a.mailHeader.dataLength = 2;
@@ -93,7 +94,7 @@ BLYNK_WRITE(V1)
 {
   radio.stopListening();
   memcpy(val,param.asStr(),4);
-  radio.openWritingPipe(slaveAddress);
+  radio.openWritingPipe(slaveAddress_A);
   radio.write(val,4);//param.asStr; // Get value as integer
   radio.startListening();
 }
@@ -191,6 +192,7 @@ void setup()
   server.on("/Slider", handleSlider);
   server.on("/readADC", handleTemp);
   server.on("/getTime", handleTime);
+  server.on("/getDeviceList", sendNodeStatus);
 
   /* sdWebServer handlers dir:=sdWebServer.cpp/.h*/
   server.on("/list", HTTP_GET, printDirectory);

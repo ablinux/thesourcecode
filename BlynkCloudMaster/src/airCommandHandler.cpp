@@ -48,6 +48,7 @@ void handleACK(airMail_t *p_mail)
     /* */
     static int i=0;
     display.setCursor(0,23);display.setTextColor(WHITE,BLACK);display.printf("Node addr: %s \nCount [%d]",p_mail->data,i);display.display();
+    memcpy(NodeAddress,p_mail->data,6);
     i++;
 }
 void handleAcuatorDevice()

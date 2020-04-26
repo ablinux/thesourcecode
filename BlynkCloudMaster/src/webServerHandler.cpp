@@ -6,7 +6,9 @@
 #include <remoreNode1.h>
 
 const byte ExpNode1[5] = {'N', 'O', 'D', 'E', '1'};
-const byte slaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
+const byte slaveAddress_A[5] = {'R', 'x', 'A', 'A', 'A'};
+const byte slaveAddress_B[5] = {'R', 'x', 'A', 'A', 'B'};
+char NodeAddress[7];
 
 char TempInC[5];
 extern RF24 radio;
@@ -41,7 +43,7 @@ void TVLEDState()
     }
     toggle++;
     radio.stopListening();
-    radio.openWritingPipe(slaveAddress);
+    radio.openWritingPipe(slaveAddress_A);
     // radio.write(&value, 3);
     airMail_a.airCommand = COMMAND_SET;
     airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
@@ -81,7 +83,7 @@ void TOPLEDState()
     }
     toggle++;
     radio.stopListening();
-    radio.openWritingPipe(slaveAddress);
+    radio.openWritingPipe(slaveAddress_A);
     airMail_a.airCommand = COMMAND_SET;
     airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
     airMail_a.mailHeader.dataLength = 2;
@@ -123,7 +125,7 @@ void handleSlider()
   String sliderValue = server.arg("SliderVal");
   Serial.println(sliderValue);
   radio.stopListening();
-  radio.openWritingPipe(slaveAddress);
+  radio.openWritingPipe(slaveAddress_A);
   airMail_a.airCommand = COMMAND_SET;
   airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
   airMail_a.mailHeader.dataLength = 2;
@@ -158,5 +160,12 @@ void handleTime()
   char time[10];
   sprintf(time,"%d:%d:%d",timeClient.getHours(),timeClient.getMinutes(),timeClient.getSeconds());
   server.send(200,"text/plane",time);
+}
+
+void sendNodeStatus()
+{
+  char tempBuff[50];
+  sprintf(tempBuff,NODE_DATA,NodeAddress,"ONLINE");
+  server.send(200,"text/plane",tempBuff);
 }
 /**************************************************************/

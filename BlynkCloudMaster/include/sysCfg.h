@@ -37,4 +37,6 @@
 #define UTC_OFFSET_IN_SECONDS 5.5*60*60 //5.5 = +5:30 india time
 #endif
 
+#define NODE_DATA "{\"DVAD\": \"%s\",\"DVST\": \"%s\"}"
+
 #endif

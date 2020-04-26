@@ -9,6 +9,32 @@
 #include "AirConnectionInterface.h"
 #include "airCommandHandler.h"
 #include "serialization.h"
+#include <Ticker.h>
+#include "OTA.hpp"
+#include <ESP8266WiFi.h>
+
+#ifndef STASSID
+#define STASSID "yourSSID"
+#define STAPSK  "password"
+#endif
+
+#define MOTOR_ON_TIME   5
+#define MOTOR_OFF_TIME   80
+
+const char* ssid     = STASSID;
+const char* password = STAPSK;
+
+Ticker WaterPump;
+Ticker StopPump;
+Ticker EverySecond;
+void RunMoter();
+void stopPump();
+void secoundTask();
+int Mode = 0;
+#define PUMP_PIN D0
+
+static int motorRunsIn= MOTOR_OFF_TIME;
+static int MoreRunCount = MOTOR_ON_TIME;
 
 /*NRF Setting */
 #define CE_PIN 0 //D3
@@ -35,12 +61,13 @@ DallasTemperature sensors(&oneWire);
 
 uint8_t tempBuffer[20];
 
-
 airMail_t airMail_a;
-  
+extern airCommandHandler_t handlers; 
 
 void setup() 
 {
+  pinMode(PUMP_PIN,OUTPUT);
+  digitalWrite(PUMP_PIN,HIGH);
   Serial.begin(115200);
   /* NRF setup */
   radio.begin();  radio.setDataRate( RF24_250KBPS ); radio.setPALevel(RF24_PA_HIGH); radio.setRetries(1, 15);
@@ -48,40 +75,64 @@ void setup()
   radio.openReadingPipe(1,thisSlaveAddress);
   radio.startListening();
 
+  /* YourSSID */
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
   /* Display Setting */
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { 
     Serial.println(F("SSD1306 allocation failed"));
     for (;;);
   }
+
+  // Start up the library
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
   display.display();
   display.clearDisplay();
-  // Start up the library
-  sensors.begin();
-  display.setTextColor(WHITE);
-  display.setTextSize(2);
-  // put your setup code here, to run once:
+  OtaSetup();
+  WaterPump.attach(MOTOR_OFF_TIME,RunMoter);
 }
-
+uint8_t dataReceived[32]; // this must match dataToSend in the TX
+airMail_t airMail;
 void loop() 
 {
+   ArduinoOTA.handle();
+  if (radio.available())
+  {
+    readNotify(true);
+    radio.read(&dataReceived, sizeof(dataReceived));
+    radio.flush_rx();
+    de_serialize_airmail(&airMail,dataReceived);
+    airNotificationHandler(&airMail);
+  }
   display.clearDisplay();
-  sensors.requestTemperatures(); // Send the command to get temperatures
+}
 
-  display.setCursor(0, 0);
-  display.printf(" RoomTemp \n\n %f",sensors.getTempCByIndex(0));
-  // display.printf("RoomTemp=");
-  Serial.println(sensors.getTempCByIndex(0));
-  display.display();
-  delay(10);
-  String StrTemp = String(sensors.getTempCByIndex(0));
-  radio.stopListening();
-  radio.openWritingPipe(Myaddress);
-  airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
-  airMail_a.mailHeader.dataLength = StrTemp.length();
-  memcpy(airMail_a.data,StrTemp.c_str(),airMail_a.mailHeader.dataLength+1);
-  serialize_airmail(tempBuffer,&airMail_a,airMail_a.mailHeader.dataLength+1);
-  radio.write(tempBuffer,airMail_a.mailHeader.dataLength+3+1);
-  radio.startListening();
-  // put your main code here, to run repeatedly:
+void RunMoter()
+{
+  digitalWrite(PUMP_PIN,LOW);
+  StopPump.attach(MOTOR_ON_TIME,stopPump);
+}
+
+void stopPump()
+{
+  digitalWrite(PUMP_PIN,HIGH);
+  StopPump.detach();
+}
+void secoundTask()
+{
+  display.setCursor(0,0); display.setTextColor(WHITE,BLACK); display.printf("Motor On in:%d",motorRunsIn); display.display();
+  motorRunsIn--;
+  if(motorRunsIn == 0)
+  {
+    motorRunsIn = MOTOR_OFF_TIME;
+  }
+
 }

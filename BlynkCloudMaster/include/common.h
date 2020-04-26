@@ -31,6 +31,8 @@ extern WiFiUDP ntpUDP;
 extern NTPClient timeClient;
 extern ESP8266WebServer server;
 extern void DisplayTimeOnLCD();
+
+extern char NodeAddress[];
 #include "OTA.hpp"
 
 #endif

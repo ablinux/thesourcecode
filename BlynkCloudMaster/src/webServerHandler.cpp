@@ -4,6 +4,7 @@
 #include "serialization.h"
 #include <RF24.h>
 #include <remoreNode1.h>
+#include "comms.h"
 
 const byte ExpNode1[5] = {'N', 'O', 'D', 'E', '1'};
 const byte slaveAddress_A[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -82,8 +83,6 @@ void TOPLEDState()
       dev1.dataByte = 1;
     }
     toggle++;
-    radio.stopListening();
-    radio.openWritingPipe(slaveAddress_A);
     airMail_a.airCommand = COMMAND_SET;
     airMail_a.mailHeader.pktType = PKT_DEVICE_ACTUATOR;
     airMail_a.mailHeader.dataLength = 2;
@@ -91,9 +90,7 @@ void TOPLEDState()
 
     memcpy(airMail_a.data,&dev1,sizeof(dev1));
     serialize_airmail(buffer,&airMail_a,3);
-    radio.write(buffer, 10);
-    // radio.write(&value, 3);
-    radio.startListening();
+    sendData((uint8_t*)slaveAddress_A,buffer,10);
   }
   else
   {

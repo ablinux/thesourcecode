@@ -1,11 +1,12 @@
 #include "airCommandHandler.h"
 #include "DevReg.h"
-#include "RFComms.h"
+#include "common.h"
 
 static bool notified = false;
 static bool getNotification ();
 extern void BlinkLed();
 extern char TempInC[];
+extern uint8_t NodeID;
 /* Notification handler */
 void airNotificationHandler(airMail_t *p_mail)
 {
@@ -28,10 +29,7 @@ void airNotificationHandler(airMail_t *p_mail)
         break;
         case PKT_REGISTRATION:
         Serial.println("Registration Packet");
-        // if(registerDevice(p_mail,&NodeDescripter[NodeID]))
-        // {
-        //     // Write(NodeDescripter[NodeID-1].NodeAddress,)
-        // }
+        registerDevice(p_mail,&NodeDescripter[NodeID]);
         break;
         case PKT_UPDATE:
         Serial.println("Bootloader Packet");

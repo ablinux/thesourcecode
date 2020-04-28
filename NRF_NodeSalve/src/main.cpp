@@ -61,11 +61,19 @@ void setup()
   radio.startListening();
 
   /* Display Setting */
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     // for (;;)
       isDispOn = 0; // Don't proceed, loop forever
+
+      /* Retry for 5 times for total 50ms gape */
+      for(int i=0;i<=5;i++)
+      {
+        if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)){isDispOn = 0;}
+        else{ isDispOn = 1; break; }
+        delay(50);
+      }
   }
 
   if(isDispOn)
@@ -117,7 +125,7 @@ void loop()
   {
     analogVal = analogRead(LM61_ANALOG_PIN);
     tempINc =  ((analogVal*500.0)/1024)-(60+16.55);
-    Serial.print("Room Temp");Serial.println(tempINc);
+    char tempbuff[100];sprintf(tempbuff,"Room Temp %s\r",String(tempINc).c_str());Serial.print(tempbuff);
     if(isDispOn)
     {
       display.setCursor(0,30);display.print("Room Temp: ");display.setCursor(display.getCursorX(),29);display.setTextColor(WHITE,BLACK);display.print(tempINc); 
@@ -153,7 +161,6 @@ void SendTempData()
   radio.openWritingPipe(MasterAddress);
   /* prepair data here */
   // sprintf((char*)TempData,"%f", tempINc);
-  Serial.println(StrTemp);
   airMail_a.mailHeader.pktType = PKT_DEVICE_SENSOR;
   airMail_a.mailHeader.dataLength = StrTemp.length();
   memcpy(airMail_a.data,StrTemp.c_str(),airMail_a.mailHeader.dataLength+1);

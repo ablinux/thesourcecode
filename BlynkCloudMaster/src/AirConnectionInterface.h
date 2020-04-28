@@ -7,13 +7,11 @@
 typedef struct deviceReg
 {
     uint8_t NodeAddress[5];
-    uint8_t NodeStatus;     /* connected NotConnected */
 }NodeDescripter_t;
 
 /* AirPayload structure */
 #define MAX_PAYLOAD_SIZE 16
-#define MAX_NODE_SUPPORTED 10
-
+#define MAX_NODE_SUPPORTED 20
 typedef uint8_t pktType_t; 
 typedef uint8_t airCommand_t;
 
@@ -66,7 +64,7 @@ typedef struct Payload
 
 
 extern NodeDescripter_t NodeDescripter[MAX_NODE_SUPPORTED];
-// extern uint8_t NodeID=0;
+
 #define HEADER_SIZE sizeof(airMailHeader_t)
 
 #endif

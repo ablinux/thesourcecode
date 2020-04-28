@@ -10,6 +10,8 @@
 #include <Sd.h>
 #include "remoreNode1.h"
 #include "../lib/sdWebServer/sdWebServer.h"
+#include "dataBase.h"
+#include "remoreNode1.h"
 
 #if EN_NTP_TIME
 WiFiUDP ntpUDP;
@@ -27,6 +29,7 @@ DallasTemperature sensors(&oneWire);
 
 /* Global var*/
 bool hasSD = false; //shared with sdWebServer.cpp file
+NodeFeatureDataBase_t NodeFeatureDataBaseLog;
 
 /* Debug */
 #define DBG_OUTPUT_PORT Serial
@@ -67,7 +70,7 @@ int MQTT_connect();
 /* Web Server */
 ESP8266WebServer server(80);
 NodeDescripter_t NodeDescripter[MAX_NODE_SUPPORTED];
-// uint8_t NodeID = 0;
+uint8_t NodeID = 0;
 
 /* Virtual pin callbacks **********************************/
 char val[5];
@@ -129,6 +132,10 @@ void ICACHE_RAM_ATTR RF_ISR()
 }
 int x,y;
 File myFile;
+/**********************************************************************************
+ * @brief Set Up function
+ * 
+ ***********************************************************************************/
 void setup()
 {
   Serial.begin(115200);
@@ -139,7 +146,7 @@ void setup()
   radio.startListening();
 
   /* Init The SD card */
-  #if 1
+#ifdef SD_CARD_CS_PIN
   if (!SD.begin(SD_CARD_CS_PIN)) {
     Serial.println("SD init Fail");
     hasSD = false;
@@ -211,9 +218,15 @@ void setup()
 #if EN_NTP_TIME
   timeClient.begin();
 #endif
+
+  dataBaseInit(sizeof(NodeFeatureDataBaseLog));
   // attachInterrupt(digitalPinToInterrupt(16),RF_ISR,FALLING);
 }
 
+/**********************************************************************************
+ * @brief Loop Function
+ * 
+ ***********************************************************************************/
 void loop()
 {
   #if 1

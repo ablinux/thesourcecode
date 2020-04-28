@@ -33,6 +33,10 @@
         "string": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "rf24.h": "c",
+        "comms.h": "c",
+        "common.h": "c",
+        "airconnectioninterface.h": "c"
     }
 }

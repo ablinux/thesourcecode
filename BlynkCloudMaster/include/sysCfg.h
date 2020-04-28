@@ -39,4 +39,8 @@
 
 #define NODE_DATA "{\"DVAD\": \"%s\",\"DVST\": \"%s\"}"
 
+/* DataBase settings*/
+#define TABLE_SIZE 8192
+#define DATA_BASE_FILE_NAME  "/DB/NodeInfo.db"
+
 #endif

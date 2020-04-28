@@ -7,7 +7,6 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <HCSR04.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -15,7 +14,7 @@
 #include <Adafruit_SSD1306.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-
+#include <EDB.h>
 /* NTP Time */
 #include <NTPClient.h>
 #include <ESP8266WiFi.h>
@@ -31,6 +30,7 @@ extern WiFiUDP ntpUDP;
 extern NTPClient timeClient;
 extern ESP8266WebServer server;
 extern void DisplayTimeOnLCD();
+extern EDB db;
 
 extern char NodeAddress[];
 #include "OTA.hpp"

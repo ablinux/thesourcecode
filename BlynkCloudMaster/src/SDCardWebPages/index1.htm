@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<style>
+    html {
+        box-sizing: border-box;
+        height: 100%;
+    }
+    
+    *,
+    *::before,
+    *::after {
+        box-sizing: inherit;
+    }
+    
+    body {
+        display: -webkit-box;
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #fffefe;
+    }
+    
+    .switch-wrap {
+        cursor: pointer;
+        background: #153b1e;
+        padding: 7px;
+        width: 120px;
+        height: 67px;
+        border-radius: 33.5px;
+    }
+    
+    .switch-wrap input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .switch {
+        height: 100%;
+        display: grid;
+        grid-template-columns: 0fr 1fr 1fr;
+        -webkit-transition: .2s;
+        transition: .2s;
+    }
+    
+    .switch::after {
+        content: '';
+        border-radius: 50%;
+        background: #ccc;
+        grid-column: 2;
+        -webkit-transition: background .2s;
+        transition: background .2s;
+    }
+    
+    input:checked+.switch {
+        grid-template-columns: 1fr 1fr 0fr;
+    }
+    
+    input:checked+.switch::after {
+        background-color: #52cf71;
+    }
+</style>
+
+<body>
+    <label class="switch-wrap">
+        <input type="checkbox" id = "TV"/>
+        <div class="switch" onclick="OnOff_Handler('TV')"></div>
+      </label>
+    <label class="switch-wrap">
+        <input type="checkbox" id = "Lamp"/>
+        <div class="switch" onclick="OnOff_Handler('Lamp')"></div>
+      </label>
+</body>
+
+<script src="script_1.js"></script>
+
+</html>

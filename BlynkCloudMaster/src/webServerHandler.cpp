@@ -5,6 +5,10 @@
 #include <RF24.h>
 #include <remoreNode1.h>
 #include "comms.h"
+/* Registering the ABTrace */
+#define TRFILE webServerHandler
+#include "TraceServer.h"
+#define WEBSERVER 0
 
 const byte ExpNode1[5] = {'N', 'O', 'D', 'E', '1'};
 const byte slaveAddress_A[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -23,7 +27,7 @@ airMail_t airMail_a;
 uint8_t buffer[10];
 void TVLEDState()
 {
-  Serial.println("TV LED CH Req");
+  TRACE(INFO,WEBSERVER,"TV LED CH Request");//Serial.println("TV LED CH Req");
   display.setCursor(x,y);
   display.setTextColor(WHITE,BLACK);display.print("TV");
   display.display();
@@ -64,7 +68,7 @@ void TVLEDState()
 }
 void TOPLEDState()
 {
-  Serial.println("Top LED CH Req");
+  TRACE(INFO,WEBSERVER,"Top LED CH Req");//Serial.println("Top LED CH Req");
   display.setCursor(x,y);
   display.setTextColor(WHITE,BLACK);display.print("LED");
   static char value[5] = "11";
@@ -101,6 +105,7 @@ void TOPLEDState()
 void BEDLEDState()
 {
   static char value[5] = {0x1,0x2,0x3,0x4,0x5};
+  TRACE(WARNING,WEBSERVER,"BED LED is not available");
   if(readRequest == 0)
   {
     server.send(200, "text/plain", "UNDER CONSTRUCTION!!");
@@ -118,9 +123,9 @@ void BEDLEDState()
 void handleSlider()
 {
   DeviceOne_t dev1;
-  Serial.print("Slider Request:");
+  TRACE(INFO,WEBSERVER,"Slider Request:");//Serial.print("Slider Request:");
   String sliderValue = server.arg("SliderVal");
-  Serial.println(sliderValue);
+  TRACE_VALUE(DEBUG,WEBSERVER,"Slider value =%d",sliderValue.toInt());//Serial.println(sliderValue);
   radio.stopListening();
   radio.openWritingPipe(slaveAddress_A);
   airMail_a.airCommand = COMMAND_SET;

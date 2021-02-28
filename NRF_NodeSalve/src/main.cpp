@@ -10,6 +10,8 @@
 #include <airCommandHandler.h>
 #include <serialization.h>
 
+#define NODEV1 1
+
 /* Private Function */
 void sendDeviceConnectStatus();
 void SendTempData();
@@ -20,8 +22,14 @@ const byte thisSlaveAddress[5] = {'R', 'x', 'A', 'A', 'A'};
 /* Master address */
 const byte MasterAddress[5] = {'M', 'A', 'S', 'T', 'R'};
 
+#if NODEV1
+#define CE_PIN 9
+#define CSN_PIN 8
+#else if
 #define CE_PIN 9
 #define CSN_PIN 10
+#endif
+
 RF24 radio(CE_PIN, CSN_PIN);
 uint8_t dataReceived[32]; // this must match dataToSend in the TX
 /************************************/

@@ -28,8 +28,19 @@ typedef struct NodeFeatueDataBase
    nodeStatus_t            NodeStatus;      /* Online=1 or Offline */
    functionName_t          Function[16];    /* Example "TV" or "FAN", Limit=16Bytes */
    functionAttribute_t     FunAttr;         /* Example Pin number of function */
-   funAttrDirection_t      FunDir;          /* Direction of Pin Read? or Write */
+   funAttrDirection_t      PinDir;          /* Direction of Pin Read? or Write */
 }NodeFeatureDataBase_t;
+
+enum functionAttribute
+{
+   DIGITAL_PIN_WRITE = 0x01,
+   DIGITAL_PIN_READ,
+   ANALOG_PIN_READ,
+   PWM_WRITE,
+   CONSOLE_WRITE,
+
+   /* For New Feature*/
+};
 
 #define JSON_STR_NODE_FEATURE_TO_WEB "{\"DVAD\":\"%s\"}"
 

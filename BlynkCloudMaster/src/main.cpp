@@ -12,6 +12,9 @@
 #include "../lib/sdWebServer/sdWebServer.h"
 #include "dataBase.h"
 #include "remoreNode1.h"
+#define TRFILE main
+#include "TraceServer.h"
+#define TRACE_MAIN 0
 
 #if EN_NTP_TIME
 WiFiUDP ntpUDP;
@@ -42,8 +45,8 @@ airMail_t airMail = {NULL};
 char auth[] = "46bbdefa300c49aa9bf51b40ed5c2357";
 
 /* WIFI Settings for open networks.*/
-char ssid[] = "yourSSID";
-char pass[] = "password";
+char ssid[] = "NidhiHome2G";
+char pass[] = "nidhipagal";
 
 /* RF Setting : Slave address configuration */
 extern byte slaveAddress_A[5] = {'R', 'x', 'A', 'A', 'A'};
@@ -148,12 +151,12 @@ void setup()
   /* Init The SD card */
 #ifdef SD_CARD_CS_PIN
   if (!SD.begin(SD_CARD_CS_PIN)) {
-    Serial.println("SD init Fail");
+    TRACE(ERROR,TRACE_MAIN,"SD init failed");// Serial.println("SD init Fail");
     hasSD = false;
   }
   else
   {
-    Serial.println("SD init PASS!");
+    TRACE(INFO,TRACE_MAIN,"SD card init pass");//Serial.println("SD init PASS!");
     hasSD = true;
   }
 #endif
@@ -166,7 +169,7 @@ void setup()
   /* Display Setting */
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { 
-    Serial.println(F("SSD1306 allocation failed"));
+    TRACE(ERROR,TRACE_MAIN,"SSD1306 allocation failed");//Serial.println(F("SSD1306 allocation failed"));
     for (;;);
   }
   display.display();
@@ -175,6 +178,7 @@ void setup()
   display.setCursor(0, 0);
 
   display.println("WIFI [ON]");display.println("Searching yourSSID..");display.display();
+  TRACE(INFO,TRACE_MAIN,"WIFI [ON] Searching yourSSID..");
   
   /* Blynk */ /* Connect to the wifi */
   Blynk.begin(auth, ssid, pass);
@@ -233,7 +237,7 @@ void loop()
   if(radio.available())
   {
     memset(rcvRadioByteStream,0x00,sizeof(rcvRadioByteStream));
-    Serial.println("Incoming packet from slave device");
+    TRACE(TRACE_MAIN,INFO,"Incoming packet from the slave device")//Serial.println("Incoming packet from slave device");
     radio.read(rcvRadioByteStream,32);
     de_serialize_airmail(&airMail,rcvRadioByteStream);
     readNotify(true);

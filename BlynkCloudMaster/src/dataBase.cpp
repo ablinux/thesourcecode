@@ -2,6 +2,9 @@
 #include <Sd.h>
 #include "sysCfg.h"
 
+#define TRFILE dataBase
+#include "TraceServer.h"
+#define DATA_BASE
 static File dbFile;
 
 // The read and write handlers for using the SD Library
@@ -28,7 +31,7 @@ bool dataBaseInit(uint16_t datalogSize)
     // Check dir for db files
     if (!SD.exists("/DB"))
     {
-        Serial.println("Dir for Db files does not exist, creating...");
+        TRACE(ERROR,DATA_BASE,"Dir for Db files does not exist, creating...");//Serial.println("Dir for Db files does not exist, creating...");
         SD.mkdir("/DB");
     }
     if (SD.exists(DATA_BASE_FILE_NAME))
@@ -45,34 +48,34 @@ bool dataBaseInit(uint16_t datalogSize)
 
         if (dbFile)
         {
-            Serial.print("Openning current table... ");
+            TRACE(INFO,DATA_BASE,"Openning current table... ");//Serial.print("Openning current table... ");
             EDB_Status result = db.open(0);
             if (result == EDB_OK)
             {
-                Serial.println("DONE");
+                TRACE(INFO,DATA_BASE,"FIle opened")//Serial.println("DONE");
             }
             else
             {
-                Serial.println("ERROR");
+                TRACE(ERROR,DATA_BASE,"Error in file opening Cannot find database file");//Serial.println("ERROR");
                 Serial.println("Did not find database in the file " + String(DATA_BASE_FILE_NAME));
-                Serial.print("Creating new table... ");
+                TRACE(DEBUG,DATA_BASE,"Creating new table... ");//Serial.print("Creating new table... ");
                 db.create(0, TABLE_SIZE, (unsigned int)datalogSize);
-                Serial.println("DONE");
+                TRACE(DEBUG,DATA_BASE,"File crated.. ");//Serial.println("DONE");
                 return false;
             }
         }
         else
         {
-            Serial.println("Could not open file " + String(DATA_BASE_FILE_NAME));
+            TRACE(ERROR,DATA_BASE,"Error in file opening Cannot find database file");//Serial.println("Could not open file " + String(DATA_BASE_FILE_NAME));
             return false;
         }
     }
     else
     {
-        Serial.print("Creating table... ");
+        TRACE(INFO,DATA_BASE,"Creating table... ");//Serial.print("Creating table... ");
         // create table at with starting address 0
         dbFile = SD.open(DATA_BASE_FILE_NAME, FILE_WRITE);
         db.create(0, TABLE_SIZE, (unsigned int)sizeof(DATA_BASE_FILE_NAME));
-        Serial.println("DONE");
+        TRACE(DEBUG,DATA_BASE,"Table created... ");//Serial.println("DONE");
     }
 }

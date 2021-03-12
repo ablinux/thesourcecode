@@ -15,6 +15,18 @@ int main()
     /* append */
     append(20);
 
+    /* append */
+    append(30);
+    
+    /* append */
+    append(20);
+
+    /* append */
+    append(30);
+    
+    /* append */
+    append(20);
+
     
     display();
     

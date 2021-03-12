@@ -5,49 +5,41 @@ static LList_t *Start =  NULL;
 static LList_t *End   =  NULL;
 
 /* Init the list*/
-void initLList(LList_t *start)
+void initLList(LList_t *List)
 {
-    start->next = NULL;
-    Start = start;
-    End->next = NULL;
-    Start = End;
+    /* Make next address as null */
+    List->next = NULL;
+    /* Consider the user provided list pointer is the 1st node */
+    Start = List;
+    /* This is also a End of the list so Start = End */
+    End = Start;
 }
 
 /* Append the item at the end of the list */
 uint8_t append(uint32_t data)
 {
-    LList_t *curr=NULL,*prv=NULL;
-    
     LList_t *NewNode = (LList_t*)malloc(sizeof(LList_t));
     NewNode->data = data;
+    NewNode->next = NULL;
 
     /* If its a 1st node */
     if(Start->next == NULL)
     {
-        Start = NewNode;
+        Start->next = NewNode;
         End = NewNode;
-        printf("1st item\n");
     }
     else
     {
-        /* Iter to the end of the list */
-        curr = Start;
-        while (curr->next != NULL)
-        {
-            prv = curr;
-            curr = curr->next;
-        }
-        /* at this point i have end item and prv item */
-        prv->next = NewNode;
-        End = NewNode;
-        printf("Other Items\n");
-        
+       End->next = NewNode;
+       NewNode->next = NULL;
+       End = NewNode; 
     }
 }
 
 /* Remove the time from the end of the list*/
 uint8_t removeFromEnd(void)
 {
+    
 
 }
 
@@ -78,14 +70,12 @@ uint8_t count()
 /* iter the item*/
 void display()
 {
-    LList_t *ItrNode = Start;
-    while (ItrNode->next != NULL)
+    LList_t *ItrNode = Start->next;
+    while (ItrNode != NULL)
     {
         printf("|%d|",ItrNode->data);
         ItrNode = ItrNode->next;
     }
-    
-
 }
 
 uint8_t pop(uint8_t index)

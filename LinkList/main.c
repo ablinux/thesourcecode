@@ -10,25 +10,9 @@ int main()
     initLList(&List);
 
     /* append */
-    append(30);
-    
-    /* append */
-    append(20);
+    // append(10);
 
-    /* append */
-    append(30);
-    
-    /* append */
-    append(20);
-
-    /* append */
-    append(30);
-    
-    /* append */
-    append(20);
-
-    
-    display();
+    removeFromEnd();
     
     return 0;
 }

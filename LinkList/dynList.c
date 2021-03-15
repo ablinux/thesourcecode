@@ -39,8 +39,25 @@ uint8_t append(uint32_t data)
 /* Remove the time from the end of the list*/
 uint8_t removeFromEnd(void)
 {
-    
-
+    /* go till the end of the list and find the previous node nd make the next address null */
+    LList_t *iter = Start;
+    LList_t *prvNode;
+    while (iter->next != NULL)
+    {
+        prvNode = iter;
+        iter = iter->next;
+    }
+    if(prvNode == NULL)
+    {
+        printf("No More Elements\n");
+        return 1;
+    }
+    else
+    {
+        End = prvNode;
+        End->next = NULL;
+        free(iter);
+    }
 }
 
 /* Remove List from user provided index*/
@@ -76,6 +93,7 @@ void display()
         printf("|%d|",ItrNode->data);
         ItrNode = ItrNode->next;
     }
+    printf("\n");
 }
 
 uint8_t pop(uint8_t index)

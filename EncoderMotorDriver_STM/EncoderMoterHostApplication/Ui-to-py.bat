@@ -1,0 +1,1 @@
+C:\Users\Abhishek\AppData\Local\Programs\Python\Python39\Scripts\pyuic5.exe -x EncoderTest.ui -o EncoderTest.py

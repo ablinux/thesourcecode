@@ -60,9 +60,12 @@ static void MX_I2C1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#define RIGHT 1
-#define LEFT 0
-#define FWD_BACK 2
+#define RIGHT 0x02
+#define LEFT 0x4
+#define FWD_BACK 0x08
+#define RIGHT_MOTOR_FINISH 0x16
+#define LEFT_MOTOR_FINISH 0x32
+
 #define TURN_RADIUS 87U //mm
 #define WHELL_DIA 44U //mm
 /*for Rotation :
@@ -143,12 +146,9 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
     memset(rBuff,0x00,sizeof(rBuff));
     memset(temp,0x00,sizeof(temp));
 
-    /* Ack to CN1 to send next command */
-    sprintf(buffer,"Command ACK#");
-    HAL_UART_Transmit(&huart1,buffer,sizeof(buffer),0xFF);
 
     /* Wait forever for next command from CN1*/
-    HAL_UART_Receive(&huart1,rBuff,16,0xFFFFFFFF);
+    HAL_UART_Receive(&huart1,rBuff,16,0xff);
 
     /* Parse the packet */
     if(rBuff[0] == 'S')
@@ -190,6 +190,8 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
           HAL_GPIO_WritePin(GPIOB,fwd_left_Pin,1);
           HAL_GPIO_WritePin(GPIOB,fwd_right_Pin,0);
           rot_dir = RIGHT;
+          HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+          HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
         }
         else if ( rBuff[11]== 'L')
@@ -199,6 +201,8 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
           right_Pin = fwd_right_Pin;
           HAL_GPIO_WritePin(GPIOB,fwd_left_Pin,0);
           HAL_GPIO_WritePin(GPIOB,fwd_right_Pin,1);
+          HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+          HAL_NVIC_EnableIRQ(EXTI2_IRQn);
           rot_dir = LEFT;
         }
         continue;
@@ -226,10 +230,11 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
         HAL_GPIO_WritePin(GPIOB,fwd_right_Pin,rBuff[8]-'0');
         HAL_GPIO_WritePin(GPIOB,back_left_Pin,rBuff[9]-'0');
         HAL_GPIO_WritePin(GPIOB,back_right_Pin,rBuff[10]-'0');
+        HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+        HAL_NVIC_EnableIRQ(EXTI2_IRQn);
         rot_dir = FWD_BACK;
       }
-      sprintf(buffer,"ACK Received CMD :%s ",rBuff);
-      HAL_UART_Transmit(&huart1,buffer,sizeof(buffer),0xFF);
+
     }
     if(err > 0)
     {
@@ -392,21 +397,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     ticks_left++;
     // notify = 1;
   }
+
+  /* For FWD only */
   if(rot_dir == FWD_BACK)
   {
-    if(!notify)
+    if(notify != (LEFT_MOTOR_FINISH|RIGHT_MOTOR_FINISH))
     {
       /* both motor has to run in syn */
+      /* if left motor has turned more stop the left motor and start the right motor */
       if(ticks_left > ticks_right && ticks_left < total_ticks_to_run)
       {
         HAL_GPIO_WritePin(GPIOB,left_Pin,0);
         HAL_GPIO_WritePin(GPIOB,right_Pin,1);
       }
+      /* if right motor has turned more stop right and start left */
       else if(ticks_left < ticks_right && ticks_right < total_ticks_to_run)
       {
         HAL_GPIO_WritePin(GPIOB,left_Pin,1);
         HAL_GPIO_WritePin(GPIOB,right_Pin,0);
       }
+      /*Both motors running equally keep them running*/
       else
       {
         HAL_GPIO_WritePin(GPIOB,left_Pin,1);
@@ -414,40 +424,49 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
       }
     }
 
-    /* Stop the motor */
+    /* Stop the motor left motor if it has reached to desired ticks
+       also good advoice to disable the interrupt for this motor*/
     if( (ticks_left >= total_ticks_to_run) )
     {
       HAL_GPIO_WritePin(GPIOB,left_Pin,0);
-      notify = 1;
+      notify |= LEFT_MOTOR_FINISH;
     }
+    /* Stop the motor right motor if it has reached to desired ticks
+       also good advoice to disable the interrupt for this motor*/
     if( (ticks_right >= total_ticks_to_run) )
     {
       HAL_GPIO_WritePin(GPIOB,right_Pin,0);
-      notify = 1;
+     notify |= RIGHT_MOTOR_FINISH;
     }
   }
+  /* Right roatation */
   else if (rot_dir == RIGHT)
   {
     /* Stop the motor */
     if( (ticks_left >= total_ticks_to_run) )
     {
       HAL_GPIO_WritePin(GPIOB,left_Pin,0);
-      notify = 1;
+      notify |= LEFT;
     }
 
   }
+  /* Left rotation */
   else if (rot_dir == LEFT)
   {
     /* Stop the motor */
     if( (ticks_right >= total_ticks_to_run) )
     {
       HAL_GPIO_WritePin(GPIOB,right_Pin,0);
-      notify = 1;
+      notify |= RIGHT;
+     
     }
   }
-  if(notify == 1)
+  if( (notify == (LEFT_MOTOR_FINISH|RIGHT_MOTOR_FINISH)) || /*1st condition for FW and bw movement*/
+      (notify == LEFT) || (notify == RIGHT) )
   {
     HAL_UART_Transmit(&huart1,"DONE#",5,2);
+    HAL_NVIC_DisableIRQ(EXTI2_IRQn); /* Left Motor */
+    HAL_NVIC_DisableIRQ(EXTI1_IRQn); /* Right Motor */
   }
 }
 /* USER CODE END 4 */

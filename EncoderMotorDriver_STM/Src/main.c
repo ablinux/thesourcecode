@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,13 +68,28 @@ static void MX_I2C1_Init(void);
 #define RIGHT_MOTOR_FINISH 0x16
 #define LEFT_MOTOR_FINISH 0x32
 
-#define TURN_RADIUS 87U //mm
-#define WHELL_DIA 44U //mm
+/*
+1 complete revolution = 695 ticks
+wheel dia = 44mm
+wheel circumference = 2*pi*22mm = 138.23mm or 13.823 cm
+
+so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
+
+so 0.198892mm = 1 tick hence 138.23mm = 138.23mm/0.19892mm/tics = x ticks
+*/
+
+#define TURN_RADIUS                                   (84U) //mm
+#define WHEEL_DIA                                     (44U) //mm
+#define ONE_REVOLUTION_TOTAL_TICK                     (695U) //Tick
+#define WHEEL_CIRCUMFERENCE                           (2*3.14*WHEEL_DIA)
+#define MM_PAR_TICK                                   (WHEEL_CIRCUMFERENCE/ONE_REVOLUTION_TOTAL_TICK)
+#define MM_TO_TICKS(x)                                (x/MM_PAR_TICK)
 /*for Rotation :
 turning radus = 87mm 
 total circumference = 2*3.14*87mm = 546.36mm
 */
-#define TURNING_circumference 546.39F 
+#define TURNING_circumference                         (2*3.14*TURN_RADIUS)
+#define ANGLE_TO_MM_TRAVEL(x)                         (TURNING_circumference*(x/360)) 
 
 static unsigned int ticks_left = 0;
 static unsigned int ticks_right = 0;
@@ -83,6 +100,7 @@ uint16_t right_Pin = fwd_right_Pin;
 uint16_t left_Pin = fwd_left_Pin;
 uint16_t angle = 0;
 uint8_t rot_dir = RIGHT;
+char *ack_str = "DONE#";
 /* USER CODE END 0 */
 
 /**
@@ -123,9 +141,8 @@ wheel circumference = 2*pi*22mm = 138.23mm or 13.823 cm
 
 so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
 */
-  char buffer [32]="wellcome";
-  char rBuff [17] = {0};
-  char temp[5];
+  uint8_t rBuff [17] = {0};
+  uint8_t temp[5];
   uint8_t err = 0;
   
 
@@ -142,7 +159,6 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
     /* Read Serial instructs */
     /* Clear all buffers */
     err = 0;
-    memset(buffer,0x00,sizeof(buffer));
     memset(rBuff,0x00,sizeof(rBuff));
     memset(temp,0x00,sizeof(temp));
 
@@ -163,12 +179,12 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
       if (rBuff[1] == 'D')
       {
         /* Convert MM to Ticks */
-        mm_distance = atoi(temp);
+        mm_distance = atoi((char*)temp);
         total_ticks_to_run = (uint64_t)(mm_distance/0.199F);
       }
       else if (rBuff[1] == 'T')
       {
-        total_ticks_to_run = atoi(temp);
+        total_ticks_to_run = atoi((char*)temp);
       }
       /* Rotate the car */
       else if (rBuff[1]=='A')
@@ -177,7 +193,7 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
         /* 1st copy the angle of rotation */
         memset(temp,0x00,sizeof(temp));
         memcpy(temp,&rBuff[12],3);
-        angle = atoi(temp);
+        angle = atoi((char*)temp);
         /* Calculate the total rotation of wheel to achieve it */
         mm_distance = (TURNING_circumference * (angle/360.0F));
         total_ticks_to_run = (uint64_t)(mm_distance/0.199F);
@@ -204,6 +220,34 @@ so 1tick = 138.23mm/695 ticks = 0.198892 mm/ticks
           HAL_NVIC_EnableIRQ(EXTI1_IRQn);
           HAL_NVIC_EnableIRQ(EXTI2_IRQn);
           rot_dir = LEFT;
+        }
+         /* Rotation from the center of robot */
+        else if(rBuff[11] == 'r')
+        {
+          /* in this case each wheel has to turn only half of the total ticks */
+          total_ticks_to_run = total_ticks_to_run/2;
+          /* Right Rotation  */
+          left_Pin = fwd_left_Pin;
+          right_Pin = back_right_Pin;
+          HAL_GPIO_WritePin(GPIOB,fwd_left_Pin,1);
+          HAL_GPIO_WritePin(GPIOB,fwd_right_Pin,0);
+          rot_dir = FWD_BACK;
+          HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+          HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+        }
+        else if ( rBuff[11]== 'l')
+        {
+          /* in this case each wheel has to turn only half of the total ticks */
+          total_ticks_to_run = total_ticks_to_run/2;
+          /* Left Rotation */
+          left_Pin = back_left_Pin;
+          right_Pin = fwd_right_Pin;
+          HAL_GPIO_WritePin(GPIOB,fwd_left_Pin,0);
+          HAL_GPIO_WritePin(GPIOB,fwd_right_Pin,1);
+          HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+          HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+          rot_dir = FWD_BACK;
         }
         continue;
       }
@@ -464,7 +508,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   if( (notify == (LEFT_MOTOR_FINISH|RIGHT_MOTOR_FINISH)) || /*1st condition for FW and bw movement*/
       (notify == LEFT) || (notify == RIGHT) )
   {
-    HAL_UART_Transmit(&huart1,"DONE#",5,2);
+    HAL_UART_Transmit(&huart1,(uint8_t*)ack_str,sizeof(ack_str),2);
     HAL_NVIC_DisableIRQ(EXTI2_IRQn); /* Left Motor */
     HAL_NVIC_DisableIRQ(EXTI1_IRQn); /* Right Motor */
   }

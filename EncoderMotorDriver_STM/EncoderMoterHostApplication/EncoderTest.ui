@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
-    <height>190</height>
+    <width>429</width>
+    <height>594</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>0</y>
-      <width>471</width>
-      <height>161</height>
+      <width>421</width>
+      <height>221</height>
      </rect>
     </property>
     <property name="title">
@@ -30,9 +30,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>30</y>
-       <width>161</width>
-       <height>91</height>
+       <y>20</y>
+       <width>111</width>
+       <height>101</height>
       </rect>
      </property>
      <property name="title">
@@ -50,6 +50,9 @@
       <property name="text">
        <string>Ticks</string>
       </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
      </widget>
      <widget class="QRadioButton" name="radioButton_Distance">
       <property name="geometry">
@@ -63,95 +66,278 @@
       <property name="text">
        <string>Distance in mm</string>
       </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_angular">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Angular</string>
+      </property>
      </widget>
     </widget>
     <widget class="QPushButton" name="pushButton_send">
      <property name="geometry">
       <rect>
-       <x>380</x>
-       <y>30</y>
-       <width>75</width>
+       <x>340</x>
+       <y>20</y>
+       <width>71</width>
        <height>101</height>
       </rect>
      </property>
      <property name="text">
-      <string>Send</string>
+      <string>Test</string>
      </property>
-    </widget>
-    <widget class="QComboBox" name="comboBox_movement">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>100</y>
-       <width>69</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>FWD</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>BACK</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>LEFT</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RIGHT</string>
-      </property>
-     </item>
     </widget>
     <widget class="QLineEdit" name="lineEdit_direction">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>40</y>
+       <x>140</x>
+       <y>30</y>
        <width>113</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>090</string>
      </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>300</x>
-       <y>40</y>
+       <x>260</x>
+       <y>30</y>
        <width>81</width>
        <height>16</height>
       </rect>
      </property>
      <property name="text">
-      <string>From North</string>
+      <string>Angle</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_distance">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>70</y>
+       <x>140</x>
+       <y>30</y>
        <width>113</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>0600</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>300</x>
-       <y>70</y>
+       <x>260</x>
+       <y>30</y>
        <width>81</width>
        <height>16</height>
       </rect>
      </property>
      <property name="text">
       <string>Distance</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_Add_Seq">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>401</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add sequence</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_Play">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>401</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Play</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>60</y>
+       <width>181</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Angular Dir</string>
+     </property>
+     <widget class="QRadioButton" name="radioButton_Left">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Left</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_Right">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Right</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_C_Left">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>20</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>C_Left</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_C_Right">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>40</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>C_Right</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Linear Dir</string>
+     </property>
+     <widget class="QRadioButton" name="radioButton_FWD">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>FWD</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_BACK">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>10</y>
+        <width>82</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>BACK</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>411</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Lists</string>
+    </property>
+    <widget class="QListWidget" name="listWidget_coordList">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>341</width>
+       <height>311</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_delete_item">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>40</y>
+       <width>31</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_cleanList">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>70</y>
+       <width>41</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Clean</string>
      </property>
     </widget>
    </widget>
@@ -161,13 +347,224 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>487</width>
+     <width>429</width>
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionAdd_csf_file"/>
+    <addaction name="actionSave_coordinate_secquence"/>
+   </widget>
+   <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAdd_csf_file">
+   <property name="text">
+    <string>Load Secquence</string>
+   </property>
+  </action>
+  <action name="actionSave_coordinate_secquence">
+   <property name="text">
+    <string>Save Secquence</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEdit_distance</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>62</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEdit_direction</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>59</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>label_2</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>63</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEdit_distance</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>37</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEdit_direction</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>62</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>label_2</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>62</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>label</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>39</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>label</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>groupBox_4</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>27</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>132</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>groupBox_4</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>131</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_angular</sender>
+   <signal>clicked()</signal>
+   <receiver>groupBox_5</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_Distance</sender>
+   <signal>clicked()</signal>
+   <receiver>groupBox_5</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>65</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
